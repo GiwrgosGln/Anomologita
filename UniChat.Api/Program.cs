@@ -1,10 +1,13 @@
 using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using UniChat.Api.Auth;
 using UniChat.Api.Data;
 using UniChat.Api.Services;
+using UniChat.Api.Validators.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -57,9 +60,13 @@ builder.Services.AddAuthorization(x =>
             c.User.HasClaim(m => m is { Type: AuthConstants.StudentUserClaimName, Value: "true" })));
 });
 
+builder.Services.AddFluentValidationAutoValidation(config => {
+    config.DisableDataAnnotationsValidation = true;
+});
+builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
+
 var app = builder.Build();
 
-// Initialize database
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

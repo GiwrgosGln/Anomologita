@@ -42,10 +42,8 @@ public class AuthService : IAuthService
             return null;
         }
         
-        // Update last login time
         user.LastLogin = DateTime.UtcNow;
         
-        // Generate new refresh token
         var refreshToken = _tokenService.GenerateRefreshToken();
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiry();
@@ -65,46 +63,34 @@ public class AuthService : IAuthService
     
     public async Task<(bool Success, string Message, Guid? UserId)> RegisterAsync(RegisterRequest request)
     {
-        // Validate username format
-        if (!ValidationService.IsValidUsername(request.Username))
+        if (string.IsNullOrEmpty(request.Username) || request.Username.Length < 6)
         {
-            return (false, "Username must be between 3-50 characters and can only contain letters, numbers, dots, underscores or hyphens.", null);
+            return (false, "Username must be at least 6 characters long.", null);
         }
         
-        // Check if username already exists
         if (await _context.Users.AnyAsync(u => u.Username.ToLower() == request.Username.ToLower()))
         {
             return (false, "Username is already taken.", null);
         }
         
-        // Check if email already exists
         if (await _context.Users.AnyAsync(u => u.Email.ToLower() == request.Email.ToLower()))
         {
             return (false, "Email is already registered.", null);
         }
         
-        // Validate password strength
-        if (!ValidationService.IsValidPassword(request.Password))
-        {
-            return (false, "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.", null);
-        }
-        
-        // Create password hash
         _passwordService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
         
-        // Create new user (always as a student, not admin)
         var user = new User
         {
             Username = request.Username,
             Email = request.Email,
             PasswordHash = passwordHash,
             PasswordSalt = passwordSalt,
-            IsStudent = true,  // Set as student
-            IsAdmin = false,   // Not an admin
+            IsStudent = true,
+            IsAdmin = false,
             CreatedAt = DateTime.UtcNow
         };
         
-        // Add user to database
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
         

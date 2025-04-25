@@ -38,18 +38,11 @@ public class AuthController : ControllerBase
         
         var (success, message, userId) = await _authService.RegisterAsync(request);
         
-        var response = new RegisterResponse
-        {
-            Success = success,
-            Message = message,
-            UserId = userId
-        };
-        
         if (!success)
         {
-            return BadRequest(response);
+            return BadRequest(new { message });
         }
         
-        return CreatedAtAction(nameof(Register), new { id = userId }, response);
+        return CreatedAtAction(nameof(Register), new { id = userId }, new { message });
     }
 }
