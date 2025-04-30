@@ -20,6 +20,7 @@ builder.Services.AddDbContext<UniChatDbContext>(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IPostService, PostService>();
 
 // Add controllers
 builder.Services.AddControllers();
@@ -51,16 +52,17 @@ builder.Services.AddAuthentication(x =>
 // Add authorization policies
 builder.Services.AddAuthorization(x =>
 {
-    x.AddPolicy(AuthConstants.AdminUserPolicyName, 
+    x.AddPolicy(AuthConstants.AdminUserPolicyName,
         p => p.RequireClaim(AuthConstants.AdminUserClaimName, "true"));
-    
+
     x.AddPolicy(AuthConstants.StudentUserPolicyName,
-        p => p.RequireAssertion(c => 
-            c.User.HasClaim(m => m is { Type: AuthConstants.AdminUserClaimName, Value: "true" }) || 
+        p => p.RequireAssertion(c =>
+            c.User.HasClaim(m => m is { Type: AuthConstants.AdminUserClaimName, Value: "true" }) ||
             c.User.HasClaim(m => m is { Type: AuthConstants.StudentUserClaimName, Value: "true" })));
 });
 
-builder.Services.AddFluentValidationAutoValidation(config => {
+builder.Services.AddFluentValidationAutoValidation(config =>
+{
     config.DisableDataAnnotationsValidation = true;
 });
 builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
