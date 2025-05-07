@@ -21,6 +21,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IUniversityService, UniversityService>();
 
 // Add controllers
 builder.Services.AddControllers();

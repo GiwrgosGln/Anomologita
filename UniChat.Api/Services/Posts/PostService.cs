@@ -84,6 +84,26 @@ public class PostService : IPostService
         }).ToList();
     }
 
+    public async Task<List<PostResponse>> GetPostsByUniversityIdAsync(Guid universityId, int pageNumber, int pageSize)
+    {
+        var posts = await _dbContext.Posts
+            .Include(p => p.User)
+            .Where(p => p.UniversityId == universityId)
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return posts.Select(post => new PostResponse
+        {
+            Id = post.Id,
+            Content = post.Content,
+            CreatedAt = post.CreatedAt,
+            UserId = post.UserId,
+            Username = post.User?.Username ?? string.Empty
+        }).ToList();
+    }
+
     public async Task<List<PostResponse>> GetAllPostsAsync(int pageNumber, int pageSize)
     {
         var posts = await _dbContext.Posts

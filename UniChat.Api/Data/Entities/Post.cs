@@ -15,4 +15,5 @@ public class Post
 
     public User User { get; set; } = null!;
     public string Username { get; set; } = string.Empty;
+    public Guid UniversityId { get; set; } = Guid.Empty;
 }

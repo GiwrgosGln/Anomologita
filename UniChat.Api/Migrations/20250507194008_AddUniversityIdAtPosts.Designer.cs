@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniChat.Api.Data;
 
@@ -11,9 +12,11 @@ using UniChat.Api.Data;
 namespace UniChat.Api.Migrations
 {
     [DbContext(typeof(UniChatDbContext))]
-    partial class UniChatDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250507194008_AddUniversityIdAtPosts")]
+    partial class AddUniversityIdAtPosts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

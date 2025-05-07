@@ -20,7 +20,15 @@ public static class ApiEndpoints
         public const string Create = $"{Base}";
         public const string GetById = $"{Base}/{{id}}";
         public const string GetByUserId = $"{Base}/user/{{userId}}";
+        public const string GetByUniversityId = $"{Base}/university/{{universityId}}";
         public const string GetAll = $"{Base}";
         public const string Delete = $"{Base}/{{id}}";
+    }
+
+    public static class Universities
+    {
+        private const string Base = $"{ApiBase}/universities";
+
+        public const string GetAll = $"{Base}";
     }
 }

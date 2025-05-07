@@ -59,6 +59,15 @@ public class PostsController : ControllerBase
     }
 
     [Authorize(AuthConstants.StudentUserPolicyName)]
+    [HttpGet(ApiEndpoints.Posts.GetByUniversityId)]
+    [ProducesResponseType(typeof(List<PostResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPostsByUniversityId([FromRoute] Guid universityId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        var posts = await _postService.GetPostsByUniversityIdAsync(universityId, pageNumber, pageSize);
+        return Ok(posts);
+    }
+
+    [Authorize(AuthConstants.StudentUserPolicyName)]
     [HttpGet(ApiEndpoints.Posts.GetAll)]
     [ProducesResponseType(typeof(List<PostResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllPosts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)

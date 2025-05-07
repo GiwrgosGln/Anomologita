@@ -51,7 +51,8 @@ public class AuthService : IAuthService
             UserId = user.Id,
             Username = user.Username,
             IsAdmin = user.IsAdmin,
-            IsStudent = user.IsStudent
+            IsStudent = user.IsStudent,
+            UniversityId = user.UniversityId ?? Guid.Empty
         };
     }
 
