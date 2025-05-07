@@ -19,7 +19,7 @@ public class PostsController : ControllerBase
 
     [Authorize(AuthConstants.StudentUserPolicyName)]
     [HttpPost(ApiEndpoints.Posts.Create)]
-    [ProducesResponseType(typeof(Post), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(PostResponse), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreatePost([FromBody] PostRequest postRequest)
     {
         if (!ModelState.IsValid)
@@ -35,7 +35,7 @@ public class PostsController : ControllerBase
 
     [Authorize(AuthConstants.StudentUserPolicyName)]
     [HttpGet(ApiEndpoints.Posts.GetById)]
-    [ProducesResponseType(typeof(Post), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PostResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPostById([FromRoute] Guid id)
     {
@@ -51,7 +51,7 @@ public class PostsController : ControllerBase
 
     [Authorize(AuthConstants.StudentUserPolicyName)]
     [HttpGet(ApiEndpoints.Posts.GetByUserId)]
-    [ProducesResponseType(typeof(List<Post>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<PostResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPostsByUserId([FromRoute] Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         var posts = await _postService.GetPostsByUserIdAsync(userId, pageNumber, pageSize);
@@ -60,7 +60,7 @@ public class PostsController : ControllerBase
 
     [Authorize(AuthConstants.StudentUserPolicyName)]
     [HttpGet(ApiEndpoints.Posts.GetAll)]
-    [ProducesResponseType(typeof(List<Post>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<PostResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllPosts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         var posts = await _postService.GetAllPostsAsync(pageNumber, pageSize);

@@ -46,7 +46,7 @@ public class AuthService : IAuthService
 
         return new LoginResponse
         {
-            Token = _tokenService.GenerateAccessToken(user),
+            AccessToken = _tokenService.GenerateAccessToken(user),
             RefreshToken = refreshToken,
             UserId = user.Id,
             Username = user.Username,

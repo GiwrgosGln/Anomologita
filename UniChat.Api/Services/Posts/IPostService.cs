@@ -5,9 +5,9 @@ namespace UniChat.Api.Services;
 
 public interface IPostService
 {
-    Task<Post> CreatePostAsync(PostRequest postRequest, Guid userId);
-    Task<Post> GetPostByIdAsync(Guid postId);
-    Task<List<Post>> GetPostsByUserIdAsync(Guid userId, int pageNumber, int pageSize);
-    Task<List<Post>> GetAllPostsAsync(int pageNumber, int pageSize);
+    Task<PostResponse> CreatePostAsync(PostRequest postRequest, Guid userId);
+    Task<PostResponse?> GetPostByIdAsync(Guid postId);
+    Task<List<PostResponse>> GetPostsByUserIdAsync(Guid userId, int pageNumber, int pageSize);
+    Task<List<PostResponse>> GetAllPostsAsync(int pageNumber, int pageSize);
     Task<bool> DeletePostAsync(Guid postId, Guid userId);
 }

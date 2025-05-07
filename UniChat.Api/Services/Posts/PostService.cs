@@ -21,51 +21,86 @@ public class PostService : IPostService
         _tokenService = tokenService;
     }
 
-    public async Task<Post> CreatePostAsync(PostRequest postRequest, Guid userId)
+    public async Task<PostResponse> CreatePostAsync(PostRequest postRequest, Guid userId)
     {
+        var user = await _dbContext.Users.FindAsync(userId);
+
         var post = new Post
         {
             Content = postRequest.Content,
             UserId = userId,
             CreatedAt = DateTime.UtcNow,
+            Username = user?.Username ?? string.Empty
         };
 
         await _dbContext.Posts.AddAsync(post);
         await _dbContext.SaveChangesAsync();
 
-        return post;
+        return new PostResponse
+        {
+            Id = post.Id,
+            Content = post.Content,
+            CreatedAt = post.CreatedAt,
+            UserId = post.UserId,
+            Username = post.Username
+        };
     }
 
-    public Task<Post> GetPostByIdAsync(Guid postId)
+    public async Task<PostResponse?> GetPostByIdAsync(Guid postId)
     {
-        var post = _dbContext.Posts
+        var post = await _dbContext.Posts
             .Include(p => p.User)
             .FirstOrDefaultAsync(p => p.Id == postId);
 
-        return post;
+        if (post == null) return null;
+
+        return new PostResponse
+        {
+            Id = post.Id,
+            Content = post.Content,
+            CreatedAt = post.CreatedAt,
+            UserId = post.UserId,
+            Username = post.User?.Username ?? string.Empty
+        };
     }
 
-    public Task<List<Post>> GetPostsByUserIdAsync(Guid userId, int pageNumber, int pageSize)
+    public async Task<List<PostResponse>> GetPostsByUserIdAsync(Guid userId, int pageNumber, int pageSize)
     {
-        var posts = _dbContext.Posts
+        var posts = await _dbContext.Posts
+            .Include(p => p.User)
             .Where(p => p.UserId == userId)
             .OrderByDescending(p => p.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-        return posts;
+        return posts.Select(post => new PostResponse
+        {
+            Id = post.Id,
+            Content = post.Content,
+            CreatedAt = post.CreatedAt,
+            UserId = post.UserId,
+            Username = post.User?.Username ?? string.Empty
+        }).ToList();
     }
 
-    public Task<List<Post>> GetAllPostsAsync(int pageNumber, int pageSize)
+    public async Task<List<PostResponse>> GetAllPostsAsync(int pageNumber, int pageSize)
     {
-        var posts = _dbContext.Posts
+        var posts = await _dbContext.Posts
+            .Include(p => p.User)
             .OrderByDescending(p => p.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-        return posts;
+        return posts.Select(post => new PostResponse
+        {
+            Id = post.Id,
+            Content = post.Content,
+            CreatedAt = post.CreatedAt,
+            UserId = post.UserId,
+            Username = post.User?.Username ?? string.Empty
+        }).ToList();
     }
 
     public async Task<bool> DeletePostAsync(Guid postId, Guid userId)
