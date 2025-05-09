@@ -16,4 +16,5 @@ public class PostResponse
 
     public string Username { get; set; } = string.Empty;
     public Guid UniversityId { get; set; } = Guid.Empty;
+    public string? ImageUrl { get; set; }
 }

@@ -20,7 +20,7 @@ public class PostsController : ControllerBase
     [Authorize(AuthConstants.StudentUserPolicyName)]
     [HttpPost(ApiEndpoints.Posts.Create)]
     [ProducesResponseType(typeof(PostResponse), StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreatePost([FromBody] PostRequest postRequest)
+    public async Task<IActionResult> CreatePost([FromForm] PostRequest postRequest)
     {
         if (!ModelState.IsValid)
         {

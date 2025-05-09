@@ -10,27 +10,48 @@ public class PostService : IPostService
     private readonly UniChatDbContext _dbContext;
     private readonly IAuthService _authService;
     private readonly ITokenService _tokenService;
+    private readonly IBlobService _blobService;
 
     public PostService(
         UniChatDbContext dbContext,
         IAuthService authService,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        IBlobService blobService)
     {
         _dbContext = dbContext;
         _authService = authService;
         _tokenService = tokenService;
+        _blobService = blobService;
     }
 
     public async Task<PostResponse> CreatePostAsync(PostRequest postRequest, Guid userId)
     {
         var user = await _dbContext.Users.FindAsync(userId);
 
+        if (user == null)
+        {
+            throw new Exception("User not found");
+        }
+
+        if (user.UniversityId == null)
+        {
+            throw new InvalidOperationException("User must be associated with a university to create a post.");
+        }
+
+        string? imageUrl = null;
+        if (postRequest.ImageFile != null && postRequest.ImageFile.Length > 0)
+        {
+            imageUrl = await _blobService.UploadImageAsync(postRequest.ImageFile, "post-images");
+        }
+
         var post = new Post
         {
             Content = postRequest.Content,
             UserId = userId,
             CreatedAt = DateTime.UtcNow,
-            Username = user?.Username ?? string.Empty
+            Username = user.Username,
+            ImageUrl = imageUrl,
+            UniversityId = user.UniversityId.Value
         };
 
         await _dbContext.Posts.AddAsync(post);
@@ -42,7 +63,9 @@ public class PostService : IPostService
             Content = post.Content,
             CreatedAt = post.CreatedAt,
             UserId = post.UserId,
-            Username = post.Username
+            Username = post.Username,
+            ImageUrl = post.ImageUrl,
+            UniversityId = post.UniversityId
         };
     }
 
@@ -60,7 +83,9 @@ public class PostService : IPostService
             Content = post.Content,
             CreatedAt = post.CreatedAt,
             UserId = post.UserId,
-            Username = post.User?.Username ?? string.Empty
+            Username = post.User?.Username ?? string.Empty,
+            ImageUrl = post.ImageUrl,
+            UniversityId = post.UniversityId
         };
     }
 
@@ -80,7 +105,9 @@ public class PostService : IPostService
             Content = post.Content,
             CreatedAt = post.CreatedAt,
             UserId = post.UserId,
-            Username = post.User?.Username ?? string.Empty
+            Username = post.User?.Username ?? string.Empty,
+            ImageUrl = post.ImageUrl,
+            UniversityId = post.UniversityId
         }).ToList();
     }
 
@@ -100,7 +127,9 @@ public class PostService : IPostService
             Content = post.Content,
             CreatedAt = post.CreatedAt,
             UserId = post.UserId,
-            Username = post.User?.Username ?? string.Empty
+            Username = post.User?.Username ?? string.Empty,
+            ImageUrl = post.ImageUrl,
+            UniversityId = post.UniversityId
         }).ToList();
     }
 
@@ -119,7 +148,9 @@ public class PostService : IPostService
             Content = post.Content,
             CreatedAt = post.CreatedAt,
             UserId = post.UserId,
-            Username = post.User?.Username ?? string.Empty
+            Username = post.User?.Username ?? string.Empty,
+            ImageUrl = post.ImageUrl,
+            UniversityId = post.UniversityId
         }).ToList();
     }
 
@@ -129,6 +160,11 @@ public class PostService : IPostService
         if (post == null || post.UserId != userId)
         {
             return false;
+        }
+
+        // TODO: Implement image deletion when deleting a post
+        if (!string.IsNullOrEmpty(post.ImageUrl))
+        {
         }
 
         _dbContext.Posts.Remove(post);

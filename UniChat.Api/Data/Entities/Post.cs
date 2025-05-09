@@ -13,7 +13,8 @@ public class Post
 
     public Guid UserId { get; set; }
 
-    public User User { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
     public string Username { get; set; } = string.Empty;
     public Guid UniversityId { get; set; } = Guid.Empty;
+    public string? ImageUrl { get; set; }
 }

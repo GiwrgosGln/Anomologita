@@ -34,5 +34,5 @@ public class User
 
     public Guid? UniversityId { get; set; }
 
-    public University? University { get; set; }
+    public virtual University? University { get; set; }
 }
