@@ -91,4 +91,27 @@ public class AuthService : IAuthService
 
         return (true, "Registration successful.", user.Id);
     }
+
+    public async Task<RefreshTokenResponse?> RefreshTokenAsync(RefreshTokenRequest request)
+    {
+        var user = await _context.Users.SingleOrDefaultAsync(u => u.RefreshToken == request.RefreshToken);
+
+        if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)
+        {
+            return null;
+        }
+
+        var newAccessToken = _tokenService.GenerateAccessToken(user);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiry();
+        await _context.SaveChangesAsync();
+
+        return new RefreshTokenResponse
+        {
+            AccessToken = newAccessToken,
+            RefreshToken = newRefreshToken
+        };
+    }
 }

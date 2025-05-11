@@ -47,4 +47,24 @@ public class AuthController : ControllerBase
 
         return CreatedAtAction(nameof(Register), new { id = userId }, new { message });
     }
+
+    [HttpPost(ApiEndpoints.Users.RefreshToken)]
+    [ProducesResponseType(typeof(RefreshTokenResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var response = await _authService.RefreshTokenAsync(request);
+
+        if (response == null)
+        {
+            return Unauthorized(new { message = "Invalid or expired refresh token." });
+        }
+
+        return Ok(response);
+    }
 }
