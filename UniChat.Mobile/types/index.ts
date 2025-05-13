@@ -1,2 +1,1 @@
-export * from "./login.types";
-export * from "./register.types";
+export * from "./auth.types"

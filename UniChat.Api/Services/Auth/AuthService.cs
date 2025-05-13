@@ -48,6 +48,7 @@ public class AuthService : IAuthService
         {
             AccessToken = _tokenService.GenerateAccessToken(user),
             RefreshToken = refreshToken,
+            RefreshTokenExpiry = user.RefreshTokenExpiry,
             UserId = user.Id,
             Username = user.Username,
             IsAdmin = user.IsAdmin,
@@ -111,7 +112,8 @@ public class AuthService : IAuthService
         return new RefreshTokenResponse
         {
             AccessToken = newAccessToken,
-            RefreshToken = newRefreshToken
+            RefreshToken = newRefreshToken,
+            RefreshTokenExpiry = user.RefreshTokenExpiry
         };
     }
 }
