@@ -3,7 +3,7 @@ import { initReactI18next } from "react-i18next";
 import * as Localization from "expo-localization";
 import { AppState, AppStateStatus } from "react-native";
 import en from "./translations/en";
-import gr from "./translations/gr";
+import el from "./translations/el";
 
 const initI18n = () => {
   const locale = Localization.getLocales()[0];
@@ -14,7 +14,7 @@ const initI18n = () => {
   i18n.use(initReactI18next).init({
     resources: {
       en: { translation: en },
-      gr: { translation: gr },
+      el: { translation: el },
     },
     lng: languageCode,
     fallbackLng: "en",

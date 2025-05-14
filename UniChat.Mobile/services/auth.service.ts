@@ -2,6 +2,7 @@ import { API_BASE_URL } from "@/config/api";
 import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, RefreshRequest, RefreshResponse } from "@/types";
 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
+  console.log("Login data:", data);
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: {
@@ -14,6 +15,7 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
     throw new Error("Login failed");
   }
 
+  console.log("Login response:", response);
   const result = await response.json();
   return result;
 };
