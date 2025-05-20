@@ -3,11 +3,10 @@ import {
   Text,
   View,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Image,
   ActivityIndicator,
   Alert,
 } from "react-native";
@@ -96,24 +95,24 @@ export default function Login() {
             secureTextEntry={!showPassword}
             autoCapitalize="none"
           />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Pressable onPress={() => setShowPassword(!showPassword)}>
             <Ionicons
               name={showPassword ? "eye-off-outline" : "eye-outline"}
               size={20}
               color={Colors.text}
             />
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Forgot Password */}
-        <TouchableOpacity style={styles.forgotPassword}>
+        <Pressable style={styles.forgotPassword}>
           <Text style={styles.forgotPasswordText}>
             {t("login_forgot_password")}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
         {/* Login Button */}
-        <TouchableOpacity
+        <Pressable
           style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
           onPress={handleLogin}
           disabled={isLoading}
@@ -123,7 +122,7 @@ export default function Login() {
           ) : (
             <Text style={styles.loginButtonText}>{t("login_button")}</Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
 
         {/* Divider */}
         <View style={styles.dividerContainer}>
@@ -135,9 +134,9 @@ export default function Login() {
         {/* Register Option */}
         <View style={styles.registerContainer}>
           <Text style={styles.registerText}>{t("login_no_account")} </Text>
-          <TouchableOpacity>
+          <Pressable onPress={() => router.push("/register")}>
             <Text style={styles.registerLink}>{t("login_register_link")}</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
     </KeyboardAvoidingView>
