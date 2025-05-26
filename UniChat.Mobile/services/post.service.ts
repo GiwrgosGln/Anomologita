@@ -17,3 +17,20 @@ export const fetchPosts = async (accessToken: string, page: number = 1, pageSize
   const result = await response.json();
   return result;
 };
+
+export const fetchPostsByUniversity = async (universityId: string, accessToken: string, page: number = 1, pageSize: number = 10): Promise<Post[]> => {
+  const response = await fetch(`${API_BASE_URL}/posts/university/${universityId}?page=${page}&pageSize=${pageSize}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch posts for university");
+  }
+
+  const result = await response.json();
+  return result;
+}
