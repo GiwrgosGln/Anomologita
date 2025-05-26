@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+  StatusBar,
+  SafeAreaView,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 import { useTranslation } from "react-i18next";
-import * as Localization from "expo-localization";
 import * as SecureStore from "expo-secure-store";
+import { fetchPosts } from "@/services";
+import { Post } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Index() {
   const { t } = useTranslation();
-  const localeInfo = Localization.getLocales()[0];
   const [userData, setUserData] = useState({
     accessToken: "",
     refreshToken: "",
@@ -15,12 +27,15 @@ export default function Index() {
     username: "",
     universityId: "",
   });
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     const fetchAuthData = async () => {
       try {
-        // Fetch all auth data from secure store
         const accessToken =
           (await SecureStore.getItemAsync("accessToken")) || "";
         const refreshToken =
@@ -40,112 +55,316 @@ export default function Index() {
           username,
           universityId,
         });
+
+        if (accessToken) {
+          loadPosts(accessToken);
+        } else {
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error("Error fetching auth data:", error);
-      } finally {
         setIsLoading(false);
+        setHasError(true);
       }
     };
 
     fetchAuthData();
   }, []);
 
+  const loadPosts = async (token: string, page = 1, refresh = false) => {
+    try {
+      setHasError(false);
+      const postsData = await fetchPosts(token, page);
+
+      if (refresh) {
+        setPosts(postsData);
+      } else {
+        const newPostIds = new Set(postsData.map((post) => post.id));
+        const filteredCurrentPosts = posts.filter(
+          (post) => !newPostIds.has(post.id)
+        );
+        setPosts([...filteredCurrentPosts, ...postsData]);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setHasError(true);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    if (!userData.accessToken) return;
+
+    setIsRefreshing(true);
+    setCurrentPage(1);
+    loadPosts(userData.accessToken, 1, true);
+  };
+
+  const handleLoadMore = () => {
+    if (!userData.accessToken || isLoading || isRefreshing) return;
+
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    loadPosts(userData.accessToken, nextPage);
+  };
+
+  const formatPostDate = (dateString: string): string => {
+    const postDate = new Date(dateString);
+    const now = new Date();
+
+    const diffMs = now.getTime() - postDate.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+    if (diffHours < 24) {
+      if (diffHours === 0) {
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        return diffMinutes <= 0
+          ? "Just now"
+          : `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
+      }
+      return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+    } else {
+      const day = postDate.getDate().toString().padStart(2, "0");
+      const month = (postDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = postDate.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+  };
+
+  const renderPostItem = ({ item }: { item: Post }) => (
+    <View style={styles.postCard}>
+      <View style={styles.postHeader}>
+        <View style={styles.avatarPlaceholder}>
+          <Text style={styles.avatarText}>
+            {item.username?.[0]?.toUpperCase() || "?"}
+          </Text>
+        </View>
+        <View>
+          <Text style={styles.authorName}>{item.username || "Anonymous"}</Text>
+          <Text style={styles.postDate}>{formatPostDate(item.createdAt)}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.postContent}>{item.content}</Text>
+
+      {item.imageUrl && (
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={styles.postImage}
+          resizeMode="cover"
+        />
+      )}
+
+      <View style={styles.postFooter}>
+        <TouchableOpacity style={styles.actionButton}>
+          <Ionicons name="heart-outline" size={20} color="#8E8E93" />
+          <Text style={styles.actionText}>0</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionButton}>
+          <Ionicons name="chatbubble-outline" size={20} color="#8E8E93" />
+          <Text style={styles.actionText}>0</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionButton}>
+          <Ionicons name="share-outline" size={20} color="#8E8E93" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>{t("welcome")}</Text>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
 
-      <View style={styles.infoSection}>
-        <Text style={styles.sectionTitle}>Device Information</Text>
-        <Text style={styles.infoText}>Language: {localeInfo.languageCode}</Text>
-        <Text style={styles.infoText}>Region: {localeInfo.regionCode}</Text>
-        <Text style={styles.infoText}>
-          Currency: {localeInfo.currencySymbol}
-        </Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>UniChat</Text>
+        <TouchableOpacity style={styles.profileButton}>
+          <Ionicons name="person-circle-outline" size={28} color="#fff" />
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.infoSection}>
-        <Text style={styles.sectionTitle}>Authentication Data</Text>
-        {isLoading ? (
-          <Text>Loading authentication data...</Text>
-        ) : (
-          <>
-            <Text style={styles.infoText}>Username: {userData.username}</Text>
-            <Text style={styles.infoText}>User ID: {userData.userId}</Text>
-            <Text style={styles.infoText}>
-              University ID: {userData.universityId || "Not available"}
-            </Text>
-            <Text style={styles.infoText}>
-              Token Expiry: {userData.refreshTokenExpiry}
-            </Text>
-
-            <Text style={styles.tokenLabel}>Access Token:</Text>
-            <Text
-              style={styles.tokenText}
-              numberOfLines={3}
-              ellipsizeMode="tail"
-            >
-              {userData.accessToken}
-            </Text>
-
-            <Text style={styles.tokenLabel}>Refresh Token:</Text>
-            <Text
-              style={styles.tokenText}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {userData.refreshToken}
-            </Text>
-          </>
-        )}
-      </View>
-    </ScrollView>
+      {isLoading && !isRefreshing ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#7F5AF0" />
+        </View>
+      ) : hasError ? (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color="#E53E3E" />
+          <Text style={styles.errorText}>Failed to load posts</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => loadPosts(userData.accessToken, currentPage, true)}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={posts}
+          renderItem={renderPostItem}
+          keyExtractor={(item, index) => `post-${item.id}-${index}`}
+          contentContainerStyle={styles.postsList}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor="#7F5AF0"
+              colors={["#7F5AF0"]}
+            />
+          }
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="document-outline" size={48} color="#8E8E93" />
+              <Text style={styles.emptyText}>No posts yet</Text>
+            </View>
+          }
+        />
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    paddingVertical: 20,
+    flex: 1,
+    backgroundColor: "#16161a",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 16,
     paddingHorizontal: 16,
-    backgroundColor: "#f5f5f5",
+    borderBottomWidth: 1,
+    borderBottomColor: "#2e2e35",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    color: "#fffffe",
+  },
+  profileButton: {
+    padding: 5,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#fffffe",
     textAlign: "center",
   },
-  infoSection: {
-    backgroundColor: "white",
+  retryButton: {
+    marginTop: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#7F5AF0",
     borderRadius: 8,
+  },
+  retryButtonText: {
+    fontSize: 16,
+    color: "#fffffe",
+    fontWeight: "500",
+  },
+  emptyContainer: {
+    padding: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#94a1b2",
+    textAlign: "center",
+  },
+  postsList: {
+    padding: 10,
+  },
+  postCard: {
+    backgroundColor: "#242629",
+    borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
+    marginVertical: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
   },
-  sectionTitle: {
+  postHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  avatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#7F5AF0",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  avatarText: {
+    color: "#fffffe",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  authorName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fffffe",
+  },
+  postDate: {
+    fontSize: 12,
+    color: "#94a1b2",
+  },
+  postTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    color: "#fffffe",
+    marginBottom: 8,
   },
-  infoText: {
+  postContent: {
+    fontSize: 15,
+    color: "#94a1b2",
+    marginBottom: 16,
+    lineHeight: 22,
+  },
+  postImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  postFooter: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderTopColor: "#2e2e35",
+    paddingTop: 12,
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 24,
+  },
+  actionText: {
+    color: "#94a1b2",
+    marginLeft: 6,
     fontSize: 14,
-    marginBottom: 6,
-  },
-  tokenLabel: {
-    fontSize: 14,
-    fontWeight: "bold",
-    marginTop: 10,
-    marginBottom: 4,
-  },
-  tokenText: {
-    fontSize: 12,
-    backgroundColor: "#f0f0f0",
-    padding: 8,
-    borderRadius: 4,
-    fontFamily: "monospace",
   },
 });
