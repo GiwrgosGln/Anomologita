@@ -57,6 +57,8 @@ public class PostService : IPostService
         await _dbContext.Posts.AddAsync(post);
         await _dbContext.SaveChangesAsync();
 
+        var university = await _dbContext.Universities.FindAsync(user.UniversityId.Value);
+
         return new PostResponse
         {
             Id = post.Id,
@@ -65,7 +67,8 @@ public class PostService : IPostService
             UserId = post.UserId,
             Username = post.Username,
             ImageUrl = post.ImageUrl,
-            UniversityId = post.UniversityId
+            UniversityId = post.UniversityId,
+            UniversityShortName = university?.ShortName
         };
     }
 
@@ -77,6 +80,8 @@ public class PostService : IPostService
 
         if (post == null) return null;
 
+        var university = await _dbContext.Universities.FindAsync(post.UniversityId);
+
         return new PostResponse
         {
             Id = post.Id,
@@ -85,7 +90,8 @@ public class PostService : IPostService
             UserId = post.UserId,
             Username = post.User?.Username ?? string.Empty,
             ImageUrl = post.ImageUrl,
-            UniversityId = post.UniversityId
+            UniversityId = post.UniversityId,
+            UniversityShortName = university?.ShortName
         };
     }
 
@@ -99,6 +105,11 @@ public class PostService : IPostService
             .Take(pageSize)
             .ToListAsync();
 
+        var universityIds = posts.Select(p => p.UniversityId).Distinct().ToList();
+        var universities = await _dbContext.Universities
+            .Where(u => universityIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, u => u.ShortName);
+
         return posts.Select(post => new PostResponse
         {
             Id = post.Id,
@@ -107,12 +118,16 @@ public class PostService : IPostService
             UserId = post.UserId,
             Username = post.User?.Username ?? string.Empty,
             ImageUrl = post.ImageUrl,
-            UniversityId = post.UniversityId
+            UniversityId = post.UniversityId,
+            UniversityShortName = universities.GetValueOrDefault(post.UniversityId)
         }).ToList();
     }
 
     public async Task<List<PostResponse>> GetPostsByUniversityIdAsync(Guid universityId, int pageNumber, int pageSize)
     {
+        var university = await _dbContext.Universities.FindAsync(universityId);
+        var universityShortName = university?.ShortName;
+
         var posts = await _dbContext.Posts
             .Include(p => p.User)
             .Where(p => p.UniversityId == universityId)
@@ -129,7 +144,8 @@ public class PostService : IPostService
             UserId = post.UserId,
             Username = post.User?.Username ?? string.Empty,
             ImageUrl = post.ImageUrl,
-            UniversityId = post.UniversityId
+            UniversityId = post.UniversityId,
+            UniversityShortName = universityShortName
         }).ToList();
     }
 
@@ -142,6 +158,11 @@ public class PostService : IPostService
             .Take(pageSize)
             .ToListAsync();
 
+        var universityIds = posts.Select(p => p.UniversityId).Distinct().ToList();
+        var universities = await _dbContext.Universities
+            .Where(u => universityIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, u => u.ShortName);
+
         return posts.Select(post => new PostResponse
         {
             Id = post.Id,
@@ -150,7 +171,8 @@ public class PostService : IPostService
             UserId = post.UserId,
             Username = post.User?.Username ?? string.Empty,
             ImageUrl = post.ImageUrl,
-            UniversityId = post.UniversityId
+            UniversityId = post.UniversityId,
+            UniversityShortName = universities.GetValueOrDefault(post.UniversityId)
         }).ToList();
     }
 

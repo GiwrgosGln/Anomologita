@@ -5,5 +5,6 @@ export interface Post {
     userId: string;
     username: string;
     universityId: string;
+    universityShortName: string;
     imageUrl?: string;
 }
