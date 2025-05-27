@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
+  Platform,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import * as SecureStore from "expo-secure-store";
@@ -136,15 +137,29 @@ export default function Index() {
   const renderPostItem = ({ item }: { item: Post }) => (
     <View style={styles.postCard}>
       <View style={styles.postHeader}>
-        <View style={styles.avatarPlaceholder}>
-          <Text style={styles.avatarText}>
-            {item.username?.[0]?.toUpperCase() || "?"}
-          </Text>
+        <View style={styles.userSection}>
+          <View style={styles.avatarPlaceholder}>
+            <Text style={styles.avatarText}>
+              {item.username?.[0]?.toUpperCase() || "?"}
+            </Text>
+          </View>
+          <View>
+            <Text style={styles.authorName}>
+              {item.username || "Anonymous"}
+            </Text>
+            <Text style={styles.postDate}>
+              {formatPostDate(item.createdAt)}
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text style={styles.authorName}>{item.username || "Anonymous"}</Text>
-          <Text style={styles.postDate}>{formatPostDate(item.createdAt)}</Text>
-        </View>
+
+        {item.universityShortName && (
+          <View style={styles.universityBadge}>
+            <Text style={styles.universityText}>
+              {item.universityShortName}
+            </Text>
+          </View>
+        )}
       </View>
 
       <Text style={styles.postContent}>{item.content}</Text>
@@ -176,60 +191,59 @@ export default function Index() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
-
-      <View style={styles.header}>
-        <Text style={styles.title}>UniChat</Text>
-        <TouchableOpacity style={styles.profileButton}>
-          <Ionicons name="person-circle-outline" size={28} color="#fff" />
-        </TouchableOpacity>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#16161a" />
+      <View style={styles.container}>
+        {isLoading && !isRefreshing ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#7F5AF0" />
+          </View>
+        ) : hasError ? (
+          <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle-outline" size={48} color="#E53E3E" />
+            <Text style={styles.errorText}>Failed to load posts</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => loadPosts(userData.accessToken, currentPage, true)}
+            >
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={posts}
+            renderItem={renderPostItem}
+            keyExtractor={(item, index) => `post-${item.id}-${index}`}
+            contentContainerStyle={styles.postsList}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                tintColor="#7F5AF0"
+                colors={["#7F5AF0"]}
+              />
+            }
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Ionicons name="document-outline" size={48} color="#8E8E93" />
+                <Text style={styles.emptyText}>No posts yet</Text>
+              </View>
+            }
+          />
+        )}
       </View>
-
-      {isLoading && !isRefreshing ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#7F5AF0" />
-        </View>
-      ) : hasError ? (
-        <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color="#E53E3E" />
-          <Text style={styles.errorText}>Failed to load posts</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => loadPosts(userData.accessToken, currentPage, true)}
-          >
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={posts}
-          renderItem={renderPostItem}
-          keyExtractor={(item, index) => `post-${item.id}-${index}`}
-          contentContainerStyle={styles.postsList}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              tintColor="#7F5AF0"
-              colors={["#7F5AF0"]}
-            />
-          }
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons name="document-outline" size={48} color="#8E8E93" />
-              <Text style={styles.emptyText}>No posts yet</Text>
-            </View>
-          }
-        />
-      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#16161a",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
   container: {
     flex: 1,
     backgroundColor: "#16161a",
@@ -308,7 +322,12 @@ const styles = StyleSheet.create({
   postHeader: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 12,
+  },
+  userSection: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   avatarPlaceholder: {
     width: 40,
@@ -332,6 +351,17 @@ const styles = StyleSheet.create({
   postDate: {
     fontSize: 12,
     color: "#94a1b2",
+  },
+  universityBadge: {
+    backgroundColor: "#2e2e35",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  universityText: {
+    color: "#7F5AF0",
+    fontSize: 12,
+    fontWeight: "600",
   },
   postTitle: {
     fontSize: 18,

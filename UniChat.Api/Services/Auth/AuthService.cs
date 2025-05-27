@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using UniChat.Api.Data;
 using UniChat.Api.Data.Entities;
 using UniChat.Api.Models.Auth;
+using UniChat.Api.Models.Posts;
 
 namespace UniChat.Api.Services;
 
@@ -114,6 +115,50 @@ public class AuthService : IAuthService
             AccessToken = newAccessToken,
             RefreshToken = newRefreshToken,
             RefreshTokenExpiry = user.RefreshTokenExpiry
+        };
+    }
+
+    public async Task<UserDetailsResponse?> GetUserDetailsAsync(Guid userId)
+    {
+        var user = await _context.Users
+            .Include(u => u.University)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+            return null;
+
+        var posts = await _context.Posts
+            .Where(p => p.UserId == userId)
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+
+        var universityIds = posts.Select(p => p.UniversityId).Distinct().ToList();
+        var universities = await _context.Universities
+            .Where(u => universityIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, u => u);
+
+        var postResponses = posts.Select(post => new PostResponse
+        {
+            Id = post.Id,
+            Content = post.Content,
+            CreatedAt = post.CreatedAt,
+            UserId = post.UserId,
+            Username = post.Username,
+            ImageUrl = post.ImageUrl,
+            UniversityId = post.UniversityId,
+            UniversityShortName = universities.TryGetValue(post.UniversityId, out var university) ? university.ShortName : null
+        }).ToList();
+
+        return new UserDetailsResponse
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            UniversityId = user.UniversityId,
+            UniversityName = user.University?.Name,
+            UniversityShortName = user.University?.ShortName,
+            CreatedAt = user.CreatedAt,
+            Posts = postResponses
         };
     }
 }

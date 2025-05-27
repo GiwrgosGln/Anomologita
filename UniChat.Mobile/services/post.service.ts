@@ -34,3 +34,37 @@ export const fetchPostsByUniversity = async (universityId: string, accessToken: 
   const result = await response.json();
   return result;
 }
+
+export const createPost = async (
+  accessToken: string,
+  content: string,
+  imageFile?: {
+    uri: string;
+    name: string;
+    type: string;
+  }
+): Promise<Post> => {
+  const formData = new FormData();
+  
+  formData.append("Content", content);
+  
+  if (imageFile) {
+    formData.append("ImageFile", imageFile as any);
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/posts`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    throw new Error(`Failed to create post: ${errorMessage}`);
+  }
+
+  const result = await response.json();
+  return result;
+};

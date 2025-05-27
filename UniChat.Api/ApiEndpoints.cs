@@ -8,10 +8,10 @@ public static class ApiEndpoints
     {
         private const string Base = $"{ApiBase}/auth";
 
-        public const string Register = $"{Base}/register";
         public const string Login = $"{Base}/login";
-        public const string Me = $"{Base}/me";
+        public const string Register = $"{Base}/register";
         public const string RefreshToken = $"{Base}/refresh";
+        public const string Me = $"{Base}/me";
     }
 
     public static class Posts

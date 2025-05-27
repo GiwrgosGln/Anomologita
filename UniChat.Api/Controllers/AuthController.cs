@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using UniChat.Api.Models.Auth;
 using UniChat.Api.Services;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using UniChat.Api.Auth;
 
 
 namespace UniChat.Api.Controllers;
@@ -66,5 +69,25 @@ public class AuthController : ControllerBase
         }
 
         return Ok(response);
+    }
+
+    [Authorize(AuthConstants.StudentUserPolicyName)]
+    [HttpGet(ApiEndpoints.Users.Me)]
+    [ProducesResponseType(typeof(UserDetailsResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<UserDetailsResponse>> GetMe()
+    {
+        var userId = User.FindFirst("userid")?.Value;
+        if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var userGuid))
+        {
+            return Unauthorized();
+        }
+
+        var userDetails = await _authService.GetUserDetailsAsync(userGuid);
+        if (userDetails == null)
+        {
+            return NotFound("User not found");
+        }
+
+        return Ok(userDetails);
     }
 }

@@ -1,3 +1,4 @@
+import { Post } from "./post.types";
 export interface LoginRequest {
   username: string;
   password: string;
@@ -33,4 +34,15 @@ export interface RefreshResponse {
     accessToken: string;
     refreshToken: string;
     refreshTokenExpiry: string;
+}
+
+export interface FetchUserResponse {
+    id: string;
+    username: string;
+    email: string;
+    universityId: boolean;
+    universityName: string;
+    universityShortName: string;
+    createdAt: string;
+    posts: Post[];
 }
