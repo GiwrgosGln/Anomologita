@@ -51,3 +51,23 @@ export const clearAuthData = async () => {
     return false;
   }
 };
+
+export const isRefreshTokenValid = async (): Promise<boolean> => {
+  try {
+    const refreshTokenExpiry = await getAuthItem(AUTH_KEYS.REFRESH_TOKEN_EXPIRY);
+    
+    // If no expiry date exists, token is invalid
+    if (!refreshTokenExpiry) {
+      return false;
+    }
+    
+    // Parse expiry date and compare with current time
+    const expiryDate = new Date(refreshTokenExpiry);
+    const currentDate = new Date();
+    
+    return expiryDate > currentDate;
+  } catch (error) {
+    console.error('Error checking refresh token validity:', error);
+    return false;
+  }
+};

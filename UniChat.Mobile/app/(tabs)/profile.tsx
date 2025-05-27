@@ -8,6 +8,8 @@ import {
   SafeAreaView,
   Image,
   Dimensions,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { fetchUser } from "@/services/auth.service";
 import { FetchUserResponse } from "@/types/auth.types";
@@ -126,6 +128,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#121212",
     padding: 16,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   centerContent: {
     flex: 1,
