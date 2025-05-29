@@ -1,5 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { View, StyleSheet, Pressable, PressableProps } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+const TabBarButton = (props: PressableProps) => {
+  return <Pressable {...props} android_ripple={null} />;
+};
 
 export default function TabLayout() {
   return (
@@ -7,12 +13,15 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#4A90E2",
-        tabBarInactiveTintColor: "#8E8E93",
+        tabBarInactiveTintColor: "#AAAAAA",
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#121212",
           borderTopWidth: 0,
           elevation: 0,
+          shadowOpacity: 0.1,
+          shadowRadius: 13,
         },
+        tabBarButton: (props) => <TabBarButton {...props} />,
       }}
     >
       <Tabs.Screen
@@ -28,9 +37,18 @@ export default function TabLayout() {
         name="add_post"
         options={{
           title: "Add Post",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="add" size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.addButtonContainer}>
+              <LinearGradient
+                colors={["#17A5DF", "#2C90EC"]}
+                style={styles.addButton}
+              >
+                <Ionicons name="add" size={24} color="#FFFFFF" />
+              </LinearGradient>
+            </View>
           ),
+          tabBarLabel: () => null,
+          tabBarButton: (props) => <TabBarButton {...props} />,
         }}
       />
       <Tabs.Screen
@@ -45,3 +63,26 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  addButtonContainer: {
+    position: "relative",
+    alignItems: "center",
+    bottom: 10,
+  },
+  addButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+});

@@ -172,11 +172,11 @@ export default function Index() {
         />
       )}
 
+      {/* TODO: Implement like, comment, and share functionality
       <View style={styles.postFooter}>
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="heart-outline" size={20} color="#8E8E93" />
           <Text style={styles.actionText}>0</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="chatbubble-outline" size={20} color="#8E8E93" />
@@ -187,6 +187,7 @@ export default function Index() {
           <Ionicons name="share-outline" size={20} color="#8E8E93" />
         </TouchableOpacity>
       </View>
+        */}
     </View>
   );
 
