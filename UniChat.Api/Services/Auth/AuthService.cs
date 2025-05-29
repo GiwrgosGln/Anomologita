@@ -48,6 +48,7 @@ public class AuthService : IAuthService
         return new LoginResponse
         {
             AccessToken = _tokenService.GenerateAccessToken(user),
+            AccessTokenExpiry = _tokenService.GetAccessTokenExpiry(),
             RefreshToken = refreshToken,
             RefreshTokenExpiry = user.RefreshTokenExpiry,
             UserId = user.Id,
@@ -113,6 +114,7 @@ public class AuthService : IAuthService
         return new RefreshTokenResponse
         {
             AccessToken = newAccessToken,
+            AccessTokenExpiry = _tokenService.GetAccessTokenExpiry(),
             RefreshToken = newRefreshToken,
             RefreshTokenExpiry = user.RefreshTokenExpiry
         };

@@ -9,6 +9,7 @@ export default function Index() {
   const localeInfo = Localization.getLocales()[0];
   const [userData, setUserData] = useState({
     accessToken: "",
+    accessTokenExpiry: "",
     refreshToken: "",
     refreshTokenExpiry: "",
     userId: "",
@@ -23,6 +24,8 @@ export default function Index() {
         // Fetch all auth data from secure store
         const accessToken =
           (await SecureStore.getItemAsync("accessToken")) || "";
+        const accessTokenExpiry =
+          (await SecureStore.getItemAsync("accessTokenExpiry")) || "";
         const refreshToken =
           (await SecureStore.getItemAsync("refreshToken")) || "";
         const refreshTokenExpiry =
@@ -34,6 +37,7 @@ export default function Index() {
 
         setUserData({
           accessToken,
+          accessTokenExpiry,
           refreshToken,
           refreshTokenExpiry,
           userId,
@@ -75,7 +79,10 @@ export default function Index() {
               University ID: {userData.universityId || "Not available"}
             </Text>
             <Text style={styles.infoText}>
-              Token Expiry: {userData.refreshTokenExpiry}
+              Access Token Expiry: {userData.accessTokenExpiry}
+            </Text>
+            <Text style={styles.infoText}>
+              Refresh Token Expiry: {userData.refreshTokenExpiry}
             </Text>
 
             <Text style={styles.tokenLabel}>Access Token:</Text>

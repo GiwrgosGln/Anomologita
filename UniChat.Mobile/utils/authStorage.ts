@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 
 export const AUTH_KEYS = {
   ACCESS_TOKEN: 'accessToken',
+  ACCESS_TOKEN_EXPIRY: 'accessTokenExpiry',
   REFRESH_TOKEN: 'refreshToken',
   REFRESH_TOKEN_EXPIRY: 'refreshTokenExpiry',
   USER_ID: 'userId',
@@ -13,6 +14,7 @@ export const AUTH_KEYS = {
 export const storeAuthData = async (authData: any) => {
   try {
     await SecureStore.setItemAsync(AUTH_KEYS.ACCESS_TOKEN, authData.accessToken);
+    await SecureStore.setItemAsync(AUTH_KEYS.ACCESS_TOKEN_EXPIRY, authData.accessTokenExpiry);
     await SecureStore.setItemAsync(AUTH_KEYS.REFRESH_TOKEN, authData.refreshToken);
     await SecureStore.setItemAsync(AUTH_KEYS.REFRESH_TOKEN_EXPIRY, authData.refreshTokenExpiry);
     await SecureStore.setItemAsync(AUTH_KEYS.USER_ID, authData.userId);
@@ -68,6 +70,26 @@ export const isRefreshTokenValid = async (): Promise<boolean> => {
     return expiryDate > currentDate;
   } catch (error) {
     console.error('Error checking refresh token validity:', error);
+    return false;
+  }
+};
+
+export const isAccessTokenValid = async (): Promise<boolean> => {
+  try {
+    const accessTokenExpiry = await getAuthItem(AUTH_KEYS.ACCESS_TOKEN_EXPIRY);
+    
+    // If no expiry date exists, token is invalid
+    if (!accessTokenExpiry) {
+      return false;
+    }
+    
+    // Parse expiry date and compare with current time
+    const expiryDate = new Date(accessTokenExpiry);
+    const currentDate = new Date();
+    
+    return expiryDate > currentDate;
+  } catch (error) {
+    console.error('Error checking access token validity:', error);
     return false;
   }
 };

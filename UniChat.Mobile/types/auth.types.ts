@@ -6,6 +6,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string;
+  accessTokenExpiry: string;
   refreshToken: string;
   refreshTokenExpiry: string;
   userId: string;
@@ -32,6 +33,7 @@ export interface RefreshRequest {
 
 export interface RefreshResponse {
     accessToken: string;
+    accessTokenExpiry: string;
     refreshToken: string;
     refreshTokenExpiry: string;
 }

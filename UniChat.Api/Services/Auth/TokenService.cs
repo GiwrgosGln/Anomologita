@@ -64,5 +64,10 @@ public class TokenService : ITokenService
     {
         return DateTime.UtcNow.AddDays(AuthConstants.RefreshTokenExpirationDays);
     }
+
+    public DateTime GetAccessTokenExpiry()
+    {
+        return DateTime.UtcNow.AddMinutes(AuthConstants.AccessTokenExpirationMinutes);
+    }
 }
 
