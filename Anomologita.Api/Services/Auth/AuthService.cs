@@ -59,21 +59,21 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<LoginResponse?> RegisterAsync(RegisterRequest request)
+    public async Task<RegisterResponse> RegisterAsync(RegisterRequest request)
     {
         if (string.IsNullOrEmpty(request.Username) || request.Username.Length < 6)
         {
-            return (false, "Username must be at least 6 characters long.", null);
+            return new RegisterResponse { Success = false, Message = "Username too short." };
         }
 
         if (await _context.Users.AnyAsync(u => u.Username.ToLower() == request.Username.ToLower()))
         {
-            return (false, "Username is already taken.", null);
+            return new RegisterResponse { Success = false, Message = "Username already taken." };
         }
 
         if (await _context.Users.AnyAsync(u => u.Email.ToLower() == request.Email.ToLower()))
         {
-            return (false, "Email is already registered.", null);
+            return new RegisterResponse { Success = false, Message = "Email already taken." };
         }
 
         _passwordService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
@@ -96,17 +96,19 @@ public class AuthService : IAuthService
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
 
-        return new LoginResponse
+        return new RegisterResponse
         {
-            AccessToken = _tokenService.GenerateAccessToken(user),
-            AccessTokenExpiry = _tokenService.GetAccessTokenExpiry(),
-            RefreshToken = refreshToken,
-            RefreshTokenExpiry = user.RefreshTokenExpiry,
+            Success = true,
+            Message = "Registration successful.",
             UserId = user.Id,
             Username = user.Username,
             IsAdmin = user.IsAdmin,
             IsStudent = user.IsStudent,
-            UniversityId = user.UniversityId ?? Guid.Empty
+            UniversityId = user.UniversityId ?? Guid.Empty,
+            AccessToken = _tokenService.GenerateAccessToken(user),
+            AccessTokenExpiry = _tokenService.GetAccessTokenExpiry(),
+            RefreshToken = refreshToken,
+            RefreshTokenExpiry = user.RefreshTokenExpiry
         };
     }
 

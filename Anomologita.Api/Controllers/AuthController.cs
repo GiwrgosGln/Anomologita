@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost(ApiEndpoints.Users.Register)]
-    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status201Created)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         if (!ModelState.IsValid)
