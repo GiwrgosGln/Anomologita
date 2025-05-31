@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost(ApiEndpoints.Users.Register)]
-    [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status201Created)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         if (!ModelState.IsValid)
@@ -41,14 +41,14 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var (success, message, userId) = await _authService.RegisterAsync(request);
+        var response = await _authService.RegisterAsync(request);
 
-        if (!success)
+        if (response == null)
         {
-            return BadRequest(new { message });
+            return BadRequest(new { message = "Registration failed. Username or email may already be taken, or password/username is invalid." });
         }
 
-        return CreatedAtAction(nameof(Register), new { id = userId }, new { message });
+        return Created(string.Empty, response);
     }
 
     [HttpPost(ApiEndpoints.Users.RefreshToken)]
@@ -89,5 +89,24 @@ public class AuthController : ControllerBase
         }
 
         return Ok(userDetails);
+    }
+
+    [Authorize(AuthConstants.StudentUserPolicyName)]
+    [HttpPut(ApiEndpoints.Users.UpdateUniversity)]
+    public async Task<IActionResult> UpdateUniversity([FromBody] UpdateUniversityRequest request)
+    {
+        var userId = User.FindFirst("userid")?.Value;
+        if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var userGuid))
+        {
+            return Unauthorized();
+        }
+
+        var success = await _authService.UpdateUserUniversityAsync(userGuid, request.UniversityId);
+        if (!success)
+        {
+            return NotFound("User not found");
+        }
+
+        return NoContent();
     }
 }

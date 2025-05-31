@@ -59,7 +59,7 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<(bool Success, string Message, Guid? UserId)> RegisterAsync(RegisterRequest request)
+    public async Task<LoginResponse?> RegisterAsync(RegisterRequest request)
     {
         if (string.IsNullOrEmpty(request.Username) || request.Username.Length < 6)
         {
@@ -89,10 +89,25 @@ public class AuthService : IAuthService
             CreatedAt = DateTime.UtcNow
         };
 
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiry = _tokenService.GetRefreshTokenExpiry();
+
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
 
-        return (true, "Registration successful.", user.Id);
+        return new LoginResponse
+        {
+            AccessToken = _tokenService.GenerateAccessToken(user),
+            AccessTokenExpiry = _tokenService.GetAccessTokenExpiry(),
+            RefreshToken = refreshToken,
+            RefreshTokenExpiry = user.RefreshTokenExpiry,
+            UserId = user.Id,
+            Username = user.Username,
+            IsAdmin = user.IsAdmin,
+            IsStudent = user.IsStudent,
+            UniversityId = user.UniversityId ?? Guid.Empty
+        };
     }
 
     public async Task<RefreshTokenResponse?> RefreshTokenAsync(RefreshTokenRequest request)
@@ -162,5 +177,19 @@ public class AuthService : IAuthService
             CreatedAt = user.CreatedAt,
             Posts = postResponses
         };
+    }
+
+    public async Task<bool> UpdateUserUniversityAsync(Guid userId, Guid universityId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return false;
+
+        var before = user.UniversityId;
+        user.UniversityId = universityId;
+        var result = await _context.SaveChangesAsync();
+
+        Console.WriteLine($"User {userId}: UniversityId before={before}, after={user.UniversityId}, SaveChanges={result}");
+
+        return result > 0;
     }
 }

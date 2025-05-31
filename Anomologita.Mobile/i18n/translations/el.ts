@@ -1,7 +1,7 @@
 export default {
   // Shared
-  app_name: "UniChat",
-  home_welcome: "Καλώς ήρθες στο UniChat",
+  app_name: "Anomologita",
+  home_welcome: "Καλώς ήρθες στο Anomologita",
 
   // Auth
   username: "Όνομα χρήστη",

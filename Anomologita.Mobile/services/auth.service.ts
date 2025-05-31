@@ -33,6 +33,7 @@ export const register = async (data: RegisterRequest): Promise<RegisterResponse>
     throw new Error("Registration failed");
   }
 
+  console.log("Register response:", response);
   const result = await response.json();
   return result;
 };
@@ -70,3 +71,27 @@ export const fetchUser = async (token: string): Promise<any> => {
   const result = await response.json();
   return result;
 }
+
+export const updateUniversity = async (token: string, universityId: string): Promise<any> => {
+  if (!universityId) throw new Error("No universityId provided");
+  const response = await fetch(`${API_BASE_URL}/auth/update-university`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ universityId }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Failed to update university: ${response.status} ${text}`);
+  }
+
+  if (response.status === 204) {
+    return;
+  }
+
+  const result = await response.json();
+  return result;
+};

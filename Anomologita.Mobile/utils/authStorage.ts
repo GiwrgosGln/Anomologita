@@ -93,3 +93,57 @@ export const isAccessTokenValid = async (): Promise<boolean> => {
     return false;
   }
 };
+
+// Get all auth data at once
+export const getAllAuthData = async () => {
+  try {
+    const [
+      accessToken,
+      accessTokenExpiry,
+      refreshToken,
+      refreshTokenExpiry,
+      userId,
+      username,
+      universityId,
+    ] = await Promise.all([
+      getAuthItem(AUTH_KEYS.ACCESS_TOKEN),
+      getAuthItem(AUTH_KEYS.ACCESS_TOKEN_EXPIRY),
+      getAuthItem(AUTH_KEYS.REFRESH_TOKEN),
+      getAuthItem(AUTH_KEYS.REFRESH_TOKEN_EXPIRY),
+      getAuthItem(AUTH_KEYS.USER_ID),
+      getAuthItem(AUTH_KEYS.USERNAME),
+      getAuthItem(AUTH_KEYS.UNIVERSITY_ID),
+    ]);
+
+    return {
+      accessToken: accessToken || "",
+      accessTokenExpiry: accessTokenExpiry || "",
+      refreshToken: refreshToken || "",
+      refreshTokenExpiry: refreshTokenExpiry || "",
+      userId: userId || "",
+      username: username || "",
+      universityId: universityId || "",
+    };
+  } catch (error) {
+    console.error("Error fetching all auth data:", error);
+    return {
+      accessToken: "",
+      accessTokenExpiry: "",
+      refreshToken: "",
+      refreshTokenExpiry: "",
+      userId: "",
+      username: "",
+      universityId: "",
+    };
+  }
+};
+
+export const setUniversityId = async (universityId: string) => {
+  try {
+    await SecureStore.setItemAsync(AUTH_KEYS.UNIVERSITY_ID, universityId);
+    return true;
+  } catch (error) {
+    console.error('Error storing universityId:', error);
+    return false;
+  }
+};

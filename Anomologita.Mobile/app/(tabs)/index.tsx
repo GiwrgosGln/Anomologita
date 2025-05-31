@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Text,
   View,
@@ -13,68 +13,22 @@ import {
   Platform,
 } from "react-native";
 import { useTranslation } from "@/node_modules/react-i18next";
-import * as SecureStore from "expo-secure-store";
 import { fetchPosts } from "@/services";
 import { Post } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuthToken } from "@/hooks/useAuthToken";
+import { useFocusEffect } from "expo-router";
 
 export default function Index() {
   const { t } = useTranslation();
-  const [userData, setUserData] = useState({
-    accessToken: "",
-    refreshToken: "",
-    refreshTokenExpiry: "",
-    userId: "",
-    username: "",
-    universityId: "",
-  });
+  const { userData, isLoading, hasError } = useAuthToken();
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    const fetchAuthData = async () => {
-      try {
-        const accessToken =
-          (await SecureStore.getItemAsync("accessToken")) || "";
-        const refreshToken =
-          (await SecureStore.getItemAsync("refreshToken")) || "";
-        const refreshTokenExpiry =
-          (await SecureStore.getItemAsync("refreshTokenExpiry")) || "";
-        const userId = (await SecureStore.getItemAsync("userId")) || "";
-        const username = (await SecureStore.getItemAsync("username")) || "";
-        const universityId =
-          (await SecureStore.getItemAsync("universityId")) || "";
-
-        setUserData({
-          accessToken,
-          refreshToken,
-          refreshTokenExpiry,
-          userId,
-          username,
-          universityId,
-        });
-
-        if (accessToken) {
-          loadPosts(accessToken);
-        } else {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Error fetching auth data:", error);
-        setIsLoading(false);
-        setHasError(true);
-      }
-    };
-
-    fetchAuthData();
-  }, []);
 
   const loadPosts = async (token: string, page = 1, refresh = false) => {
     try {
-      setHasError(false);
+      if (!token) return;
       const postsData = await fetchPosts(token, page);
 
       if (refresh) {
@@ -88,16 +42,28 @@ export default function Index() {
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
-      setHasError(true);
     } finally {
-      setIsLoading(false);
       setIsRefreshing(false);
     }
   };
 
+  useEffect(() => {
+    if (userData.accessToken) {
+      loadPosts(userData.accessToken, 1, true);
+    }
+  }, [userData.accessToken]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (userData.accessToken) {
+        loadPosts(userData.accessToken, 1, true);
+      }
+      console.log("Posts screen focused, loading posts...");
+    }, [userData.accessToken])
+  );
+
   const handleRefresh = () => {
     if (!userData.accessToken) return;
-
     setIsRefreshing(true);
     setCurrentPage(1);
     loadPosts(userData.accessToken, 1, true);
@@ -105,7 +71,6 @@ export default function Index() {
 
   const handleLoadMore = () => {
     if (!userData.accessToken || isLoading || isRefreshing) return;
-
     const nextPage = currentPage + 1;
     setCurrentPage(nextPage);
     loadPosts(userData.accessToken, nextPage);

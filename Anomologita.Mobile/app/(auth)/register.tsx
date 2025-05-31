@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@/node_modules/react-i18next";
 import { router } from "expo-router";
 import { register } from "@/services/auth.service";
+import { storeAuthData } from "@/utils/authStorage";
 
 export default function Register() {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
+    console.log("Pressed register");
     // Basic validation
     if (!username || !email || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill in all fields");
@@ -55,17 +57,18 @@ export default function Register() {
         confirmPassword,
       });
 
+      // Store auth data just like in login
+      const storageSuccess = await storeAuthData(response);
+
+      if (!storageSuccess) {
+        Alert.alert(
+          "Warning",
+          "Registration successful but there was an issue storing credentials securely."
+        );
+      }
+
       console.log("Registration successful");
-      Alert.alert(
-        "Registration Successful",
-        "Your account has been created successfully. Please log in.",
-        [
-          {
-            text: "OK",
-            onPress: () => router.replace("/login"),
-          },
-        ]
-      );
+      router.replace("/select-university");
     } catch (error) {
       console.error("Registration error:", error);
       Alert.alert(

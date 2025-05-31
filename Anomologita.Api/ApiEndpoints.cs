@@ -12,6 +12,7 @@ public static class ApiEndpoints
         public const string Register = $"{Base}/register";
         public const string RefreshToken = $"{Base}/refresh";
         public const string Me = $"{Base}/me";
+        public const string UpdateUniversity = $"{Base}/update-university";
     }
 
     public static class Posts
