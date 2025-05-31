@@ -25,11 +25,13 @@ jobs:
         env:
           SA_PASSWORD: ${{ secrets.SA_PASSWORD }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
+          AZURE_BLOB_CONNECTION_STRING: ${{ secrets.AZURE_BLOB_CONNECTION_STRING }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "
             cd ~/Anomologita &&
             export SA_PASSWORD='${SA_PASSWORD}' &&
             export JWT_KEY='${JWT_KEY}' &&
+            export AZURE_BLOB_CONNECTION_STRING='${AZURE_BLOB_CONNECTION_STRING}' &&
             docker compose pull &&
             docker compose up -d --build
           "
