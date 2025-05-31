@@ -30,7 +30,7 @@ public class BlobService : IBlobService
         }
 
         var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-        await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+        await containerClient.CreateIfNotExistsAsync(PublicAccessType.None);
 
         var blobName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
         var blobClient = containerClient.GetBlobClient(blobName);
