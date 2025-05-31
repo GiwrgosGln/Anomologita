@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  ScrollView,
+  Button,
+  Alert,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import * as Localization from "expo-localization";
 import * as SecureStore from "expo-secure-store";
+import { clearAuthData } from "../../utils/authStorage";
+import { useRouter } from "expo-router";
 
-export default function Index() {
+export default function Debug() {
   const { t } = useTranslation();
+  const router = useRouter();
   const localeInfo = Localization.getLocales()[0];
   const [userData, setUserData] = useState({
     accessToken: "",
@@ -18,41 +28,64 @@ export default function Index() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchAuthData = async () => {
+    try {
+      // Fetch all auth data from secure store
+      const accessToken = (await SecureStore.getItemAsync("accessToken")) || "";
+      const accessTokenExpiry =
+        (await SecureStore.getItemAsync("accessTokenExpiry")) || "";
+      const refreshToken =
+        (await SecureStore.getItemAsync("refreshToken")) || "";
+      const refreshTokenExpiry =
+        (await SecureStore.getItemAsync("refreshTokenExpiry")) || "";
+      const userId = (await SecureStore.getItemAsync("userId")) || "";
+      const username = (await SecureStore.getItemAsync("username")) || "";
+      const universityId =
+        (await SecureStore.getItemAsync("universityId")) || "";
+
+      setUserData({
+        accessToken,
+        accessTokenExpiry,
+        refreshToken,
+        refreshTokenExpiry,
+        userId,
+        username,
+        universityId,
+      });
+    } catch (error) {
+      console.error("Error fetching auth data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAuthData = async () => {
-      try {
-        // Fetch all auth data from secure store
-        const accessToken =
-          (await SecureStore.getItemAsync("accessToken")) || "";
-        const accessTokenExpiry =
-          (await SecureStore.getItemAsync("accessTokenExpiry")) || "";
-        const refreshToken =
-          (await SecureStore.getItemAsync("refreshToken")) || "";
-        const refreshTokenExpiry =
-          (await SecureStore.getItemAsync("refreshTokenExpiry")) || "";
-        const userId = (await SecureStore.getItemAsync("userId")) || "";
-        const username = (await SecureStore.getItemAsync("username")) || "";
-        const universityId =
-          (await SecureStore.getItemAsync("universityId")) || "";
-
-        setUserData({
-          accessToken,
-          accessTokenExpiry,
-          refreshToken,
-          refreshTokenExpiry,
-          userId,
-          username,
-          universityId,
-        });
-      } catch (error) {
-        console.error("Error fetching auth data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchAuthData();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      const success = await clearAuthData();
+      if (success) {
+        Alert.alert("Success", "All authentication data has been cleared");
+        setUserData({
+          accessToken: "",
+          accessTokenExpiry: "",
+          refreshToken: "",
+          refreshTokenExpiry: "",
+          userId: "",
+          username: "",
+          universityId: "",
+        });
+        router.replace("/(auth)/login");
+      } else {
+        Alert.alert("Error", "Failed to clear authentication data");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      Alert.alert("Error", "An unexpected error occurred during logout");
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -105,6 +138,15 @@ export default function Index() {
           </>
         )}
       </View>
+
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Logout / Clear Auth Data"
+          onPress={handleLogout}
+          color="#d9534f"
+        />
+        <Button title="Refresh Data" onPress={fetchAuthData} color="#5bc0de" />
+      </View>
     </ScrollView>
   );
 }
@@ -154,5 +196,9 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 4,
     fontFamily: "monospace",
+  },
+  buttonContainer: {
+    marginVertical: 16,
+    gap: 12,
   },
 });

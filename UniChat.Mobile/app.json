@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "UniChat.Mobile",
-    "slug": "UniChat.Mobile",
+    "name": "Anomologita",
+    "slug": "anomologita",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "unichatmobile",
+    "scheme": "anomologita",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "app.anomologita"
     },
     "web": {
       "bundler": "metro",
@@ -38,6 +39,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "03d36776-a7e9-4049-8f60-f8684309a53b"
+      }
     }
   }
 }
