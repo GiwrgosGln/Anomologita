@@ -23,7 +23,7 @@ services:
       - Jwt__Key=${JWT_KEY}
       - Jwt__Issuer=Anomologita
       - Jwt__Audience=AnomologitaAudience
-      - AzureBlob__ConnectionString=${AZURE_BLOB_CONNECTION_STRING}
+      - ConnectionStrings__AzureBlobStorage=${AZURE_BLOB_CONNECTION_STRING}
     ports:
       - "5015:8080"
     depends_on:
