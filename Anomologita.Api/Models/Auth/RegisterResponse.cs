@@ -10,7 +10,7 @@ public class RegisterResponse
     public bool IsStudent { get; set; }
     public Guid UniversityId { get; set; }
     public string AccessToken { get; set; } = string.Empty;
-    public DateTime AccessTokenExpiry { get; set; }
+    public DateTime? AccessTokenExpiry { get; set; }
     public string RefreshToken { get; set; } = string.Empty;
-    public DateTime RefreshTokenExpiry { get; set; }
+    public DateTime? RefreshTokenExpiry { get; set; }
 }
