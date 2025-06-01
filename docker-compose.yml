@@ -13,7 +13,7 @@ services:
       - sql_data:/var/opt/mssql
     restart: unless-stopped
 
-  api:
+  anomologita-api:
     build:
       context: ./Anomologita.Api
     container_name: anomologita-api

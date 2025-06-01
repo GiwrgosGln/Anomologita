@@ -37,8 +37,13 @@ jobs:
           "
 
       - name: Run EF Core migrations as one-off container
+        env:
+          SA_PASSWORD: ${{ secrets.SA_PASSWORD }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          AZURE_BLOB_CONNECTION_STRING: ${{ secrets.AZURE_BLOB_CONNECTION_STRING }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "
             cd ~/Anomologita &&
-            docker compose run --rm api dotnet ef database update --no-build
+            SA_PASSWORD='${SA_PASSWORD}' JWT_KEY='${JWT_KEY}' AZURE_BLOB_CONNECTION_STRING='${AZURE_BLOB_CONNECTION_STRING}' \
+            docker compose run --rm anomologita-api dotnet ef database update --no-build
           "
