@@ -40,5 +40,5 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "
             cd ~/Anomologita &&
-            docker compose run --rm anomologita-api dotnet ef database update --no-build
+            docker compose run --rm api dotnet ef database update --no-build
           "
