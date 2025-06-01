@@ -36,9 +36,9 @@ jobs:
             docker compose up -d --build
           "
 
-      - name: Run EF Core migrations in container
+      - name: Run EF Core migrations as one-off container
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "
             cd ~/Anomologita &&
-            docker compose exec anomologita-api dotnet ef database update --no-build
+            docker compose run --rm anomologita-api dotnet ef database update --no-build
           "
