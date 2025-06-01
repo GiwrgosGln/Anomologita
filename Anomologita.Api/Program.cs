@@ -77,6 +77,8 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        var context = services.GetRequiredService<AnomologitaDbContext>();
+        await context.Database.MigrateAsync();
         await DbInitializer.InitializeAsync(services);
     }
     catch (Exception ex)
