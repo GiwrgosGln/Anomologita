@@ -1,4 +1,4 @@
-name: Deploy to Hetzner
+name: Deploy to production
 
 on:
   push:
@@ -34,4 +34,11 @@ jobs:
             export AZURE_BLOB_CONNECTION_STRING='${AZURE_BLOB_CONNECTION_STRING}' &&
             docker compose pull &&
             docker compose up -d --build
+          "
+
+      - name: Run EF Core migrations in container
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "
+            cd ~/Anomologita &&
+            docker compose exec anomologita-api dotnet ef database update --no-build
           "
