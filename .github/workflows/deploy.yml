@@ -32,6 +32,8 @@ jobs:
             export SA_PASSWORD='${SA_PASSWORD}' &&
             export JWT_KEY='${JWT_KEY}' &&
             export AZURE_BLOB_CONNECTION_STRING='${AZURE_BLOB_CONNECTION_STRING}' &&
+            docker compose down --remove-orphans &&
+            docker container prune -f &&
             docker compose pull &&
             docker compose up -d --build
           "
