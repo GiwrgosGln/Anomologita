@@ -59,7 +59,7 @@ public class AuthService : IAuthService
         };
     }
 
-    public async Task<RegisterResponse> RegisterAsync(RegisterRequest request)
+    public async Task<RegisterResponse?> RegisterAsync(RegisterRequest request)
     {
         if (string.IsNullOrEmpty(request.Username) || request.Username.Length < 6)
         {

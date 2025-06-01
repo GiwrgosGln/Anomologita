@@ -33,4 +33,14 @@ public static class ApiEndpoints
 
         public const string GetAll = $"{Base}";
     }
+
+    public static class Comments
+    {
+        private const string Base = $"{ApiBase}/comments";
+
+        public const string Create = $"{Base}";
+        public const string GetByPostId = $"{Base}/post/{{postId}}";
+        public const string GetById = $"{Base}/{{commentId}}";
+        public const string Delete = $"{Base}/{{commentId}}";
+    }
 }

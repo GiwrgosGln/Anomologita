@@ -23,6 +23,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IUniversityService, UniversityService>();
 builder.Services.AddSingleton<IBlobService, BlobService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 // Add controllers
 builder.Services.AddControllers();
