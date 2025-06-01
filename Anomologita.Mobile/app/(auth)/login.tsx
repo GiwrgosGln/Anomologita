@@ -14,11 +14,12 @@ import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@/node_modules/react-i18next";
 import { login } from "@/services/auth.service";
-import { storeAuthData } from "@/utils/authStorage";
 import { router } from "expo-router";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Login() {
   const { t } = useTranslation();
+  const { setAuthData } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -35,14 +36,8 @@ export default function Login() {
       const response = await login({ username, password });
       console.log("Login successful");
 
-      const storageSuccess = await storeAuthData(response);
+      await setAuthData(response);
 
-      if (!storageSuccess) {
-        Alert.alert(
-          "Warning",
-          "Login successful but there was an issue storing credentials securely."
-        );
-      }
       router.replace("/");
     } catch (error) {
       console.error("Login error:", error);

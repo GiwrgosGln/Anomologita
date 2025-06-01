@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Text,
   View,
@@ -9,78 +9,20 @@ import {
 } from "react-native";
 import { useTranslation } from "@/node_modules/react-i18next";
 import * as Localization from "expo-localization";
-import * as SecureStore from "expo-secure-store";
-import { clearAuthData } from "../../utils/authStorage";
 import { useRouter } from "expo-router";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Debug() {
   const { t } = useTranslation();
   const router = useRouter();
   const localeInfo = Localization.getLocales()[0];
-  const [userData, setUserData] = useState({
-    accessToken: "",
-    accessTokenExpiry: "",
-    refreshToken: "",
-    refreshTokenExpiry: "",
-    userId: "",
-    username: "",
-    universityId: "",
-  });
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchAuthData = async () => {
-    try {
-      // Fetch all auth data from secure store
-      const accessToken = (await SecureStore.getItemAsync("accessToken")) || "";
-      const accessTokenExpiry =
-        (await SecureStore.getItemAsync("accessTokenExpiry")) || "";
-      const refreshToken =
-        (await SecureStore.getItemAsync("refreshToken")) || "";
-      const refreshTokenExpiry =
-        (await SecureStore.getItemAsync("refreshTokenExpiry")) || "";
-      const userId = (await SecureStore.getItemAsync("userId")) || "";
-      const username = (await SecureStore.getItemAsync("username")) || "";
-      const universityId =
-        (await SecureStore.getItemAsync("universityId")) || "";
-
-      setUserData({
-        accessToken,
-        accessTokenExpiry,
-        refreshToken,
-        refreshTokenExpiry,
-        userId,
-        username,
-        universityId,
-      });
-    } catch (error) {
-      console.error("Error fetching auth data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAuthData();
-  }, []);
+  const { authData, setAuthData } = useAuth();
 
   const handleLogout = async () => {
     try {
-      const success = await clearAuthData();
-      if (success) {
-        Alert.alert("Success", "All authentication data has been cleared");
-        setUserData({
-          accessToken: "",
-          accessTokenExpiry: "",
-          refreshToken: "",
-          refreshTokenExpiry: "",
-          userId: "",
-          username: "",
-          universityId: "",
-        });
-        router.replace("/(auth)/login");
-      } else {
-        Alert.alert("Error", "Failed to clear authentication data");
-      }
+      await setAuthData(null);
+      Alert.alert("Success", "All authentication data has been cleared");
+      router.replace("/(auth)/login");
     } catch (error) {
       console.error("Error during logout:", error);
       Alert.alert("Error", "An unexpected error occurred during logout");
@@ -102,20 +44,18 @@ export default function Debug() {
 
       <View style={styles.infoSection}>
         <Text style={styles.sectionTitle}>Authentication Data</Text>
-        {isLoading ? (
-          <Text>Loading authentication data...</Text>
-        ) : (
+        {authData ? (
           <>
-            <Text style={styles.infoText}>Username: {userData.username}</Text>
-            <Text style={styles.infoText}>User ID: {userData.userId}</Text>
+            <Text style={styles.infoText}>Username: {authData.username}</Text>
+            <Text style={styles.infoText}>User ID: {authData.userId}</Text>
             <Text style={styles.infoText}>
-              University ID: {userData.universityId || "Not available"}
+              University ID: {authData.universityId || "Not available"}
             </Text>
             <Text style={styles.infoText}>
-              Access Token Expiry: {userData.accessTokenExpiry}
+              Access Token Expiry: {authData.accessTokenExpiry}
             </Text>
             <Text style={styles.infoText}>
-              Refresh Token Expiry: {userData.refreshTokenExpiry}
+              Refresh Token Expiry: {authData.refreshTokenExpiry}
             </Text>
 
             <Text style={styles.tokenLabel}>Access Token:</Text>
@@ -124,7 +64,7 @@ export default function Debug() {
               numberOfLines={3}
               ellipsizeMode="tail"
             >
-              {userData.accessToken}
+              {authData.accessToken}
             </Text>
 
             <Text style={styles.tokenLabel}>Refresh Token:</Text>
@@ -133,9 +73,11 @@ export default function Debug() {
               numberOfLines={2}
               ellipsizeMode="tail"
             >
-              {userData.refreshToken}
+              {authData.refreshToken}
             </Text>
           </>
+        ) : (
+          <Text style={styles.infoText}>No authentication data available.</Text>
         )}
       </View>
 
@@ -145,7 +87,6 @@ export default function Debug() {
           onPress={handleLogout}
           color="#d9534f"
         />
-        <Button title="Refresh Data" onPress={fetchAuthData} color="#5bc0de" />
       </View>
     </ScrollView>
   );

@@ -15,9 +15,9 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { createPost } from "@/services/post.service";
-import { getAuthItem, AUTH_KEYS } from "@/utils/authStorage";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useValidAccessToken } from "@/hooks/useValidAccessToken";
 
 export default function AddPost() {
   const [content, setContent] = useState("");
@@ -30,11 +30,11 @@ export default function AddPost() {
   } | null>(null);
 
   const router = useRouter();
+  const getValidAccessToken = useValidAccessToken();
 
   // Request media library permissions and pick image
   const pickImage = async () => {
     try {
-      // Request permissions - modern approach
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
@@ -45,10 +45,8 @@ export default function AddPost() {
         return;
       }
 
-      // Launch image picker
       let result = await ImagePicker.launchImageLibraryAsync({
-        // Use this format to avoid the deprecation warning
-        mediaTypes: "images", // String instead of enum
+        mediaTypes: "images",
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -58,11 +56,9 @@ export default function AddPost() {
         const selectedImage = result.assets[0];
         setImage(selectedImage.uri);
 
-        // Get file extension and create a unique filename
         const uriParts = selectedImage.uri.split(".");
         const fileExtension = uriParts[uriParts.length - 1];
 
-        // Store image details for upload
         setImageDetails({
           uri: selectedImage.uri,
           name: `post_image_${Date.now()}.${fileExtension}`,
@@ -91,7 +87,7 @@ export default function AddPost() {
     setLoading(true);
 
     try {
-      const accessToken = await getAuthItem(AUTH_KEYS.ACCESS_TOKEN);
+      const accessToken = await getValidAccessToken();
 
       if (!accessToken) {
         Alert.alert("Error", "You are not logged in");
@@ -100,12 +96,10 @@ export default function AddPost() {
 
       await createPost(accessToken, content, imageDetails || undefined);
 
-      // Reset form
       setContent("");
       setImage(null);
       setImageDetails(null);
 
-      // Show success message
       Alert.alert("Success", "Post created successfully", [
         {
           text: "OK",

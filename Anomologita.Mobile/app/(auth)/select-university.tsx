@@ -4,13 +4,12 @@ import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import { fetchUniversities } from "@/services/university.service";
 import { updateUniversity } from "@/services/auth.service";
-import { useAuthToken } from "@/hooks/useAuthToken";
+import { useAuth } from "@/contexts/AuthContext";
 import { Colors } from "@/constants/Colors";
 import { University } from "@/types/university.types";
-import { setUniversityId } from "@/utils/authStorage";
 
 export default function SelectUniversity() {
-  const { userData, isLoading: isAuthLoading } = useAuthToken();
+  const { authData, loading: isAuthLoading } = useAuth();
   const [universities, setUniversities] = useState<University[]>([]);
   const [selectedUniversity, setSelectedUniversity] = useState<
     string | undefined
@@ -22,8 +21,8 @@ export default function SelectUniversity() {
   useEffect(() => {
     const loadUniversities = async () => {
       try {
-        if (!userData.accessToken) return;
-        const data = await fetchUniversities(userData.accessToken);
+        if (!authData?.accessToken) return;
+        const data = await fetchUniversities(authData.accessToken);
         setUniversities(data);
       } catch (error) {
         Alert.alert("Error", "Failed to load universities");
@@ -34,17 +33,20 @@ export default function SelectUniversity() {
     if (!isAuthLoading) {
       loadUniversities();
     }
-  }, [userData, isAuthLoading]);
+  }, [authData, isAuthLoading]);
 
   const handleNext = async () => {
     if (!selectedUniversity) {
       Alert.alert("Error", "Please select a university");
       return;
     }
+    if (!authData?.accessToken) {
+      Alert.alert("Error", "You are not authenticated.");
+      return;
+    }
     setIsSubmitting(true);
     try {
-      await updateUniversity(userData.accessToken, selectedUniversity);
-      await setUniversityId(selectedUniversity);
+      await updateUniversity(authData.accessToken, selectedUniversity);
       router.replace("/");
     } catch (error) {
       console.error("Update university error:", error);

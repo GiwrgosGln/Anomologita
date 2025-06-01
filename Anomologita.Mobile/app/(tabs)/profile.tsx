@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -13,13 +13,15 @@ import {
 } from "react-native";
 import { fetchUser } from "@/services/auth.service";
 import { FetchUserResponse } from "@/types/auth.types";
-import { getAuthItem, AUTH_KEYS } from "@/utils/authStorage";
+import { useAuth } from "@/contexts/AuthContext";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
+import { useValidAccessToken } from "@/hooks/useValidAccessToken";
 
 const { width } = Dimensions.get("window");
 
 export default function Profile() {
+  const { loading: authLoading } = useAuth();
+  const getValidAccessToken = useValidAccessToken();
   const [user, setUser] = useState<FetchUserResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export default function Profile() {
       const getUserData = async () => {
         try {
           setLoading(true);
-          const token = await getAuthItem(AUTH_KEYS.ACCESS_TOKEN);
+          const token = await getValidAccessToken();
 
           if (!token) {
             setError("Not logged in");
@@ -37,8 +39,8 @@ export default function Profile() {
             return;
           }
 
-          const userData = await fetchUser(token);
-          setUser(userData);
+          const userDataRes = await fetchUser(token);
+          setUser(userDataRes);
           setError(null);
         } catch (err) {
           console.error("Failed to fetch user data:", err);
@@ -48,8 +50,8 @@ export default function Profile() {
         }
       };
 
-      getUserData();
-    }, [])
+      if (!authLoading) getUserData();
+    }, [authLoading])
   );
 
   return (

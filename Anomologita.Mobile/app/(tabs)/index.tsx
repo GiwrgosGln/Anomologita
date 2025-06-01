@@ -8,7 +8,6 @@ import {
   RefreshControl,
   StatusBar,
   SafeAreaView,
-  TouchableOpacity,
   Image,
   Platform,
 } from "react-native";
@@ -16,18 +15,21 @@ import { useTranslation } from "@/node_modules/react-i18next";
 import { fetchPosts } from "@/services";
 import { Post } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuthToken } from "@/hooks/useAuthToken";
+import { useAuth } from "@/contexts/AuthContext";
 import { useFocusEffect } from "expo-router";
+import { useValidAccessToken } from "@/hooks/useValidAccessToken";
 
 export default function Index() {
   const { t } = useTranslation();
-  const { userData, isLoading, hasError } = useAuthToken();
+  const { loading } = useAuth();
+  const getValidAccessToken = useValidAccessToken();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const loadPosts = async (token: string, page = 1, refresh = false) => {
+  const loadPosts = async (page = 1, refresh = false) => {
     try {
+      const token = await getValidAccessToken();
       if (!token) return;
       const postsData = await fetchPosts(token, page);
 
@@ -48,32 +50,26 @@ export default function Index() {
   };
 
   useEffect(() => {
-    if (userData.accessToken) {
-      loadPosts(userData.accessToken, 1, true);
-    }
-  }, [userData.accessToken]);
+    loadPosts(1, true);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      if (userData.accessToken) {
-        loadPosts(userData.accessToken, 1, true);
-      }
-      console.log("Posts screen focused, loading posts...");
-    }, [userData.accessToken])
+      loadPosts(1, true);
+    }, [])
   );
 
   const handleRefresh = () => {
-    if (!userData.accessToken) return;
     setIsRefreshing(true);
     setCurrentPage(1);
-    loadPosts(userData.accessToken, 1, true);
+    loadPosts(1, true);
   };
 
   const handleLoadMore = () => {
-    if (!userData.accessToken || isLoading || isRefreshing) return;
+    if (loading || isRefreshing) return;
     const nextPage = currentPage + 1;
     setCurrentPage(nextPage);
-    loadPosts(userData.accessToken, nextPage);
+    loadPosts(nextPage);
   };
 
   const formatPostDate = (dateString: string): string => {
@@ -160,20 +156,9 @@ export default function Index() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#16161a" />
       <View style={styles.container}>
-        {isLoading && !isRefreshing ? (
+        {loading && !isRefreshing ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#7F5AF0" />
-          </View>
-        ) : hasError ? (
-          <View style={styles.errorContainer}>
-            <Ionicons name="alert-circle-outline" size={48} color="#E53E3E" />
-            <Text style={styles.errorText}>Failed to load posts</Text>
-            <TouchableOpacity
-              style={styles.retryButton}
-              onPress={() => loadPosts(userData.accessToken, currentPage, true)}
-            >
-              <Text style={styles.retryButtonText}>Retry</Text>
-            </TouchableOpacity>
           </View>
         ) : (
           <FlatList
