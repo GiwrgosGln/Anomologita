@@ -10,4 +10,6 @@ RUN dotnet publish -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "Anomologita.Api.dll"]
+COPY wait-for-it.sh .
+RUN chmod +x wait-for-it.sh
+ENTRYPOINT ["./wait-for-it.sh", "db:1433", "--timeout=60", "--", "dotnet", "Anomologita.Api.dll"]
