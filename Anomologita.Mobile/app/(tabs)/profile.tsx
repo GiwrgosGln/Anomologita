@@ -16,6 +16,7 @@ import { FetchUserResponse } from "@/types/auth.types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFocusEffect } from "@react-navigation/native";
 import { useValidAccessToken } from "@/hooks/useValidAccessToken";
+import { Colors } from "@/constants/Colors";
 
 const { width } = Dimensions.get("window");
 
@@ -128,7 +129,7 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: Colors.background,
     padding: 16,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 55,
-    backgroundColor: "#6C63FF",
+    backgroundColor: Colors.highlight,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
@@ -154,21 +155,21 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 44,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: Colors.background,
   },
   username: {
     fontSize: 26,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: Colors.text,
     marginBottom: 6,
   },
   universityName: {
     fontSize: 16,
-    color: "#AAAAAA",
+    color: Colors.textAccent,
     textAlign: "center",
   },
   card: {
-    backgroundColor: "#1E1E1E",
+    backgroundColor: Colors.backgroundAccent,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#6C63FF",
+    color: Colors.highlight,
   },
   sectionSubtext: {
     fontSize: 14,

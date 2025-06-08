@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Image,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 import { useTranslation } from "@/node_modules/react-i18next";
 import { fetchPosts } from "@/services";
@@ -127,8 +128,6 @@ export default function Index() {
         )}
       </View>
 
-      <Text style={styles.postContent}>{item.content}</Text>
-
       {item.imageUrl && (
         <Image
           source={{ uri: item.imageUrl }}
@@ -137,22 +136,52 @@ export default function Index() {
         />
       )}
 
-      {/* TODO: Implement like, comment, and share functionality
-      <View style={styles.postFooter}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="heart-outline" size={20} color="#8E8E93" />
-          <Text style={styles.actionText}>0</Text>
+      {item.imageUrl && (
+        <View style={styles.postFooter}>
+          <View style={styles.leftActions}>
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name="heart-outline" size={28} color={Colors.text} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons
+                name="chatbubble-outline"
+                size={24}
+                color={Colors.text}
+              />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="bookmark-outline" size={24} color={Colors.text} />
+          </TouchableOpacity>
+        </View>
+      )}
 
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="chatbubble-outline" size={20} color="#8E8E93" />
-          <Text style={styles.actionText}>0</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="share-outline" size={20} color="#8E8E93" />
-        </TouchableOpacity>
+      <View style={styles.postContent}>
+        <Text style={styles.postTextContainer}>
+          {item.imageUrl && <Text style={styles.author}>{item.username} </Text>}
+          <Text style={styles.contentText}>{item.content}</Text>
+        </Text>
       </View>
-        */}
+
+      {!item.imageUrl && (
+        <View style={styles.postFooter}>
+          <View style={styles.leftActions}>
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name="heart-outline" size={28} color={Colors.text} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons
+                name="chatbubble-outline"
+                size={24}
+                color={Colors.text}
+              />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="bookmark-outline" size={24} color={Colors.text} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 
@@ -162,14 +191,13 @@ export default function Index() {
       <View style={styles.container}>
         {loading && !isRefreshing ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#7F5AF0" />
+            <ActivityIndicator size="large" color="#FEE930" />
           </View>
         ) : (
           <FlatList
             data={posts}
             renderItem={renderPostItem}
             keyExtractor={(item, index) => `post-${item.id}-${index}`}
-            contentContainerStyle={styles.postsList}
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshing}
@@ -198,7 +226,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    paddingBottom: Platform.OS === "android" ? 16 : 0,
+    paddingBottom: Platform.OS === "android" ? 70 : 0,
   },
   container: {
     flex: 1,
@@ -208,18 +236,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#2e2e35",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#fffffe",
-  },
-  profileButton: {
-    padding: 5,
   },
   loadingContainer: {
     flex: 1,
@@ -261,27 +282,21 @@ const styles = StyleSheet.create({
     color: "#94a1b2",
     textAlign: "center",
   },
-  postsList: {
-    padding: 10,
-  },
   postCard: {
-    backgroundColor: Colors.backgroundAccent,
-    borderWidth: 0.2,
-    borderColor: Colors.text,
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
+    paddingBottom: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
+    borderTopWidth: 0.2,
+    borderColor: Colors.textAccent,
   },
   postHeader: {
     flexDirection: "row",
+    padding: 16,
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
   },
   userSection: {
     flexDirection: "row",
@@ -291,13 +306,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#7F5AF0",
+    backgroundColor: Colors.highlight,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
   avatarText: {
-    color: "#fffffe",
+    color: Colors.background,
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -311,13 +326,13 @@ const styles = StyleSheet.create({
     color: "#94a1b2",
   },
   universityBadge: {
-    backgroundColor: "#2e2e35",
+    backgroundColor: Colors.backgroundAccent,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
   },
   universityText: {
-    color: "#7F5AF0",
+    color: Colors.highlight,
     fontSize: 12,
     fontWeight: "600",
   },
@@ -328,27 +343,39 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   postContent: {
-    fontSize: 15,
-    color: "#94a1b2",
-    marginBottom: 16,
-    lineHeight: 22,
+    paddingHorizontal: 16,
+  },
+  postTextContainer: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   postImage: {
     width: "100%",
-    height: 200,
-    borderRadius: 12,
-    marginBottom: 16,
+    height: 300,
+  },
+  author: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.text,
+  },
+  contentText: {
+    fontSize: 14,
+    color: Colors.textAccent,
   },
   postFooter: {
     flexDirection: "row",
-    borderTopWidth: 1,
-    borderTopColor: "#2e2e35",
-    paddingTop: 12,
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 16,
+    paddingVertical: 8,
+  },
+  leftActions: {
+    flexDirection: "row",
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
-    marginRight: 24,
+    marginRight: 16,
   },
   actionText: {
     color: "#94a1b2",

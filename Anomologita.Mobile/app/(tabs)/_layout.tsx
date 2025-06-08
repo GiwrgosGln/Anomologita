@@ -13,15 +13,18 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.textAccent,
-        tabBarInactiveTintColor: Colors.textAccent,
+        tabBarActiveTintColor: Colors.highlight,
+        tabBarInactiveTintColor: Colors.text,
         tabBarShowLabel: false,
         tabBarStyle: {
           position: "absolute",
-          borderTopWidth: 0,
+          height: 60,
+          paddingTop: 5,
+          borderTopWidth: 0.2,
+          borderTopColor: "rgba(255, 255, 255, 0.1)",
           shadowColor: "rgba(47, 64, 85, 1)",
           shadowRadius: 10,
-          backgroundColor: Colors.background,
+          backgroundColor: Colors.backgroundAccent,
           shadowOffset: {
             width: 0,
             height: 4,
@@ -37,8 +40,7 @@ export default function TabLayout() {
           title: "Home",
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabIconContainer}>
-              <Ionicons name="home" size={24} color={color} />
-              {focused && <View style={styles.activeDot} />}
+              <Ionicons name="home-outline" size={24} color={color} />
             </View>
           ),
         }}
@@ -48,14 +50,7 @@ export default function TabLayout() {
         options={{
           title: "Add Post",
           tabBarIcon: ({ color, focused }) => (
-            <View style={styles.addButtonContainer}>
-              <LinearGradient
-                colors={["#17A5DF", "#2C90EC"]}
-                style={styles.addButton}
-              >
-                <Ionicons name="add" size={24} color="#FFFFFF" />
-              </LinearGradient>
-            </View>
+            <Ionicons name="add-circle-outline" size={24} color={color} />
           ),
           tabBarLabel: () => null,
           tabBarButton: (props) => <TabBarButton {...props} />,
@@ -67,8 +62,7 @@ export default function TabLayout() {
           title: "Profile",
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabIconContainer}>
-              <Ionicons name="person" size={24} color={color} />
-              {focused && <View style={styles.activeDot} />}
+              <Ionicons name="person-circle-outline" size={24} color={color} />
             </View>
           ),
         }}
@@ -101,12 +95,5 @@ const styles = StyleSheet.create({
   tabIconContainer: {
     alignItems: "center",
     justifyContent: "center",
-  },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: Colors.textAccent,
-    marginTop: 4,
   },
 });

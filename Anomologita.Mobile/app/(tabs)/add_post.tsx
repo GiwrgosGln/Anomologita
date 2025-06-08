@@ -18,6 +18,7 @@ import { createPost } from "@/services/post.service";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useValidAccessToken } from "@/hooks/useValidAccessToken";
+import { Colors } from "@/constants/Colors";
 
 export default function AddPost() {
   const [content, setContent] = useState("");
@@ -157,7 +158,7 @@ export default function AddPost() {
               <MaterialIcons
                 name="add-photo-alternate"
                 size={28}
-                color="#6C63FF"
+                color="#FEE930"
               />
               <Text style={styles.imagePickerText}>Add Photo</Text>
             </TouchableOpacity>
@@ -187,7 +188,7 @@ export default function AddPost() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: Colors.background,
   },
   keyboardAvoidView: {
     flex: 1,
@@ -199,35 +200,34 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: Colors.text,
     marginBottom: 24,
     textAlign: "center",
   },
   input: {
-    backgroundColor: "#1E1E1E",
+    backgroundColor: Colors.backgroundAccent,
     borderRadius: 12,
     padding: 15,
-    color: "#FFFFFF",
+    color: Colors.text,
     fontSize: 16,
     minHeight: 120,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#333333",
+    borderWidth: 0.2,
+    borderColor: Colors.highlight,
   },
   imagePickerButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#1E1E1E",
+    backgroundColor: Colors.backgroundAccent,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#333333",
-    borderStyle: "dashed",
+    borderWidth: 0.2,
+    borderColor: Colors.highlight,
     padding: 20,
     marginBottom: 24,
   },
   imagePickerText: {
-    color: "#6C63FF",
+    color: Colors.highlight,
     fontSize: 16,
     fontWeight: "500",
     marginLeft: 10,
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   submitButton: {
-    backgroundColor: "#6C63FF",
+    backgroundColor: Colors.highlight,
     borderRadius: 12,
     padding: 16,
     alignItems: "center",
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0,
   },
   submitButtonText: {
-    color: "#FFFFFF",
+    color: Colors.background,
     fontSize: 16,
     fontWeight: "bold",
   },
