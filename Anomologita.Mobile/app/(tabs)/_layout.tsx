@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { View, StyleSheet, Pressable, PressableProps } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { Colors } from "@/constants/Colors";
 
 const TabBarButton = (props: PressableProps) => {
   return <Pressable {...props} android_ripple={null} />;
@@ -12,14 +13,20 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#4A90E2",
-        tabBarInactiveTintColor: "#AAAAAA",
+        tabBarActiveTintColor: Colors.textAccent,
+        tabBarInactiveTintColor: Colors.textAccent,
+        tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#121212",
+          position: "absolute",
           borderTopWidth: 0,
-          elevation: 0,
-          shadowOpacity: 0.1,
-          shadowRadius: 13,
+          shadowColor: "rgba(47, 64, 85, 1)",
+          shadowRadius: 10,
+          backgroundColor: Colors.background,
+          shadowOffset: {
+            width: 0,
+            height: 4,
+          },
+          shadowOpacity: 0.12,
         },
         tabBarButton: (props) => <TabBarButton {...props} />,
       }}
@@ -28,8 +35,11 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.tabIconContainer}>
+              <Ionicons name="home" size={24} color={color} />
+              {focused && <View style={styles.activeDot} />}
+            </View>
           ),
         }}
       />
@@ -55,8 +65,11 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="person" size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.tabIconContainer}>
+              <Ionicons name="person" size={24} color={color} />
+              {focused && <View style={styles.activeDot} />}
+            </View>
           ),
         }}
       />
@@ -84,5 +97,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  tabIconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  activeDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.textAccent,
+    marginTop: 4,
   },
 });

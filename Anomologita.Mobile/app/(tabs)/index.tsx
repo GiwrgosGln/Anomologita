@@ -18,6 +18,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFocusEffect } from "expo-router";
 import { useValidAccessToken } from "@/hooks/useValidAccessToken";
+import { formatUtcToLocal } from "@/utils/dateTime";
+import { Colors } from "@/constants/Colors";
 
 export default function Index() {
   const { t } = useTranslation();
@@ -88,10 +90,12 @@ export default function Index() {
       }
       return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
     } else {
-      const day = postDate.getDate().toString().padStart(2, "0");
-      const month = (postDate.getMonth() + 1).toString().padStart(2, "0");
-      const year = postDate.getFullYear();
-      return `${day}/${month}/${year}`;
+      // Use the util for local formatting
+      return formatUtcToLocal(dateString, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
     }
   };
 
@@ -192,12 +196,13 @@ export default function Index() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#16161a",
+    backgroundColor: Colors.background,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    paddingBottom: Platform.OS === "android" ? 16 : 0,
   },
   container: {
     flex: 1,
-    backgroundColor: "#16161a",
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -260,7 +265,9 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   postCard: {
-    backgroundColor: "#242629",
+    backgroundColor: Colors.backgroundAccent,
+    borderWidth: 0.2,
+    borderColor: Colors.text,
     borderRadius: 12,
     padding: 16,
     marginVertical: 8,
