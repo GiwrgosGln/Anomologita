@@ -17,7 +17,7 @@ import { fetchPosts } from "@/services";
 import { Post } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/AuthContext";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useValidAccessToken } from "@/hooks/useValidAccessToken";
 import { formatUtcToLocal } from "@/utils/dateTime";
 import { Colors } from "@/constants/Colors";
@@ -25,6 +25,7 @@ import { Colors } from "@/constants/Colors";
 export default function Index() {
   const { t } = useTranslation();
   const { loading } = useAuth();
+  const router = useRouter();
   const getValidAccessToken = useValidAccessToken();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -100,8 +101,19 @@ export default function Index() {
     }
   };
 
+  const handlePostPress = (post: Post) => {
+    router.push({
+      pathname: "/post/[id]",
+      params: { id: post.id, postData: JSON.stringify(post) },
+    });
+  };
+
   const renderPostItem = ({ item }: { item: Post }) => (
-    <View style={styles.postCard}>
+    <TouchableOpacity
+      style={styles.postCard}
+      onPress={() => handlePostPress(item)}
+      activeOpacity={0.9}
+    >
       <View style={styles.postHeader}>
         <View style={styles.userSection}>
           <View style={styles.avatarPlaceholder}>
@@ -182,7 +194,7 @@ export default function Index() {
           </TouchableOpacity>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 
   return (

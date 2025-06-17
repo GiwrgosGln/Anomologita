@@ -26,6 +26,7 @@ function AppStack() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="debug" options={{ headerShown: false }} />
+      <Stack.Screen name="post/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   loginButtonText: {
-    color: Colors.text,
+    color: Colors.background,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   registerLink: {
-    color: Colors.highlightAccent,
+    color: Colors.highlight,
     fontSize: 15,
     fontWeight: "600",
   },
