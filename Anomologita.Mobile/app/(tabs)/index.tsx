@@ -137,9 +137,6 @@ export default function Index() {
               />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="bookmark-outline" size={24} color={Colors.text} />
-          </TouchableOpacity>
         </View>
       )}
 
@@ -164,9 +161,6 @@ export default function Index() {
               />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="bookmark-outline" size={24} color={Colors.text} />
-          </TouchableOpacity>
         </View>
       )}
     </TouchableOpacity>

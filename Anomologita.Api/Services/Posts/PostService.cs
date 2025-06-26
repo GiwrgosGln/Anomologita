@@ -176,21 +176,19 @@ public class PostService : IPostService
         }).ToList();
     }
 
-    public async Task<bool> DeletePostAsync(Guid postId, Guid userId)
+    public async Task DeletePostAsync(Guid postId)
     {
         var post = await _dbContext.Posts.FindAsync(postId);
-        if (post == null || post.UserId != userId)
+        if (post != null)
         {
-            return false;
-        }
+            // TODO: Implement image deletion when deleting a post
+            if (!string.IsNullOrEmpty(post.ImageUrl))
+            {
+                // Add image deletion logic here
+            }
 
-        // TODO: Implement image deletion when deleting a post
-        if (!string.IsNullOrEmpty(post.ImageUrl))
-        {
+            _dbContext.Posts.Remove(post);
+            await _dbContext.SaveChangesAsync();
         }
-
-        _dbContext.Posts.Remove(post);
-        await _dbContext.SaveChangesAsync();
-        return true;
     }
 }

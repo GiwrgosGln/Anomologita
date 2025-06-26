@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#6C63FF",
+    color: Colors.highlight,
     marginBottom: 8,
   },
   sectionHeader: {

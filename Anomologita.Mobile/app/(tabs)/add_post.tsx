@@ -100,13 +100,7 @@ export default function AddPost() {
       setContent("");
       setImage(null);
       setImageDetails(null);
-
-      Alert.alert("Success", "Post created successfully", [
-        {
-          text: "OK",
-          onPress: () => router.push("/(tabs)"),
-        },
-      ]);
+      router.push("/(tabs)");
     } catch (error) {
       console.error("Error creating post:", error);
       Alert.alert("Error", "Failed to create post. Please try again.");

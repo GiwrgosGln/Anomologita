@@ -10,5 +10,5 @@ public interface IPostService
     Task<List<PostResponse>> GetPostsByUserIdAsync(Guid userId, int pageNumber, int pageSize);
     Task<List<PostResponse>> GetPostsByUniversityIdAsync(Guid universityId, int pageNumber, int pageSize);
     Task<List<PostResponse>> GetAllPostsAsync(int pageNumber, int pageSize);
-    Task<bool> DeletePostAsync(Guid postId, Guid userId);
+    Task DeletePostAsync(Guid postId);
 }

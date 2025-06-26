@@ -82,14 +82,19 @@ public class PostsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePost([FromRoute] Guid id)
     {
-        var userId = Guid.Parse(User.FindFirst("userid")?.Value ?? string.Empty);
-        var success = await _postService.DeletePostAsync(id, userId);
-
-        if (!success)
+        var post = await _postService.GetPostByIdAsync(id);
+        if (post == null)
         {
-            return NotFound(new { message = "Post not found or you do not have permission to delete it" });
+            return NotFound(new { message = "Post not found" });
         }
 
+        var userId = Guid.Parse(User.FindFirst("userid")?.Value ?? string.Empty);
+        if (post.UserId != userId)
+        {
+            return Forbid();
+        }
+
+        await _postService.DeletePostAsync(id);
         return NoContent();
     }
 }

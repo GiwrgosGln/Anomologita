@@ -92,7 +92,11 @@ export default function PostDetails() {
               onLoad={() => console.log("Image loaded successfully")}
             />
             <View style={styles.backButtonContainer}>
-              <BlurView intensity={30} style={styles.blurBackButton}>
+              <BlurView
+                intensity={80}
+                tint="dark"
+                style={styles.blurBackButton}
+              >
                 <Pressable onPress={handleBackPress} style={styles.backButton}>
                   <Ionicons name="arrow-back" size={24} color={Colors.text} />
                 </Pressable>
