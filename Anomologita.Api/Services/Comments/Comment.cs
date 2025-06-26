@@ -37,12 +37,16 @@ public class CommentService : ICommentService
 
     public async Task<CommentResponse> CreateCommentAsync(CommentRequest commentRequest)
     {
+        var user = await _dbContext.Users.FindAsync(commentRequest.UserId);
+
         var comment = new Comment
         {
             Id = Guid.NewGuid(),
             Content = commentRequest.Content,
             PostId = commentRequest.PostId,
             UserId = commentRequest.UserId,
+            Username = user?.Username ?? string.Empty,
+            UniversityId = user?.UniversityId ?? Guid.Empty,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -56,6 +60,8 @@ public class CommentService : ICommentService
             Content = comment.Content,
             PostId = comment.PostId,
             UserId = comment.UserId,
+            Username = comment.Username,
+            UniversityId = comment.UniversityId,
             CreatedAt = comment.CreatedAt,
             UpdatedAt = comment.UpdatedAt
         };

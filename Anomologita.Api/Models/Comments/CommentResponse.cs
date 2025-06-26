@@ -14,6 +14,7 @@ public class CommentResponse
     public DateTime? UpdatedAt { get; set; }
 
     public Guid UserId { get; set; }
+    public Guid UniversityId { get; set; } = Guid.Empty;
 
     public string Username { get; set; } = string.Empty;
 

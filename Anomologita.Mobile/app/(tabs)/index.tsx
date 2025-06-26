@@ -19,7 +19,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useValidAccessToken } from "@/hooks/useValidAccessToken";
-import { formatUtcToLocal } from "@/utils/dateTime";
+import { formatUtcToLocal, getRelativeTime } from "@/utils/dateTime";
 import { Colors } from "@/constants/Colors";
 
 export default function Index() {
@@ -76,31 +76,6 @@ export default function Index() {
     loadPosts(nextPage);
   };
 
-  const formatPostDate = (dateString: string): string => {
-    const postDate = new Date(dateString);
-    const now = new Date();
-
-    const diffMs = now.getTime() - postDate.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-    if (diffHours < 24) {
-      if (diffHours === 0) {
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        return diffMinutes <= 0
-          ? "Just now"
-          : `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
-      }
-      return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-    } else {
-      // Use the util for local formatting
-      return formatUtcToLocal(dateString, {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-    }
-  };
-
   const handlePostPress = (post: Post) => {
     router.push({
       pathname: "/post/[id]",
@@ -126,7 +101,7 @@ export default function Index() {
               {item.username || "Anonymous"}
             </Text>
             <Text style={styles.postDate}>
-              {formatPostDate(item.createdAt)}
+              {getRelativeTime(item.createdAt)}
             </Text>
           </View>
         </View>
